@@ -17,6 +17,8 @@ bootloader_location:
 #   4. Jump to location where MBR is loaded
 #   If none found, display an error on VGA
 
+main:
+
 # STEP 1
 # Ensuring SD Card / memory is inserted
 
