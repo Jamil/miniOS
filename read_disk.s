@@ -1,6 +1,6 @@
 # Read from SRAM
 
-.equ BLOCK_SIZE 512
+.equ BLOCK_SIZE, 512
 
 .global loadBlock
 .global storeBlock
@@ -15,7 +15,7 @@ loadBlock:
     mov r8, r4          
     add r8, r8, r5          # Add target to offset to get final target address (absolute address)
     movi r9, 0              # Iterator
-    mov r10, BLOCK_SIZE 
+    movia r10, BLOCK_SIZE 
     
 load_bytes:
     bge r9, r10, finish_load    # while (iterator < BLOCK_SIZE)
@@ -37,7 +37,7 @@ storeBlock:
     mov r8, r4          
     add r8, r8, r5          # Add target to offset to get final target address (absolute address)
     movi r9, 0              # Iterator
-    mov r10, BLOCK_SIZE 
+    movia r10, BLOCK_SIZE 
     
 store_bytes:
     bge r9, r10, finish_store
