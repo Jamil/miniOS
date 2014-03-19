@@ -1,6 +1,6 @@
 ### Debugging Information
 
 ## BIOS
-LEDG[0] - No Memory Found
-LEDG[1] - No Master Boot Record Found
-LEDG[2] - Success
+LEDG[0] - Success
+LEDG[1] - No SD Card Found
+LEDG[2] - No Master Boot Record Found
