@@ -41,13 +41,17 @@ checkSignature:
     bne r17, r0, success
     
 no_boot_sector:
-    movi r17, 1                         # Set debug bit on LEDs
+    movi r17, 0b010                     # Set debug bit on LEDs
     movia r18, LED_GREEN_ADDRESS         
     stwio r17, (r18)
     
     br no_boot_sector
 
 success:
+    movi r17, 0b0100                    # Set debug bit on LEDs
+    movia r18, LED_GREEN_ADDRESS
+    stwio r17, (r18)
+    
     jmp bootloader_location
     
     
