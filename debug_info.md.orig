@@ -2,5 +2,10 @@
 
 ## BIOS
 LEDG[0] - Success
+<<<<<<< HEAD
+LEDG[1] - Using SD Card
+LEDG[2] - No Master Boot Record Found
+=======
 LEDG[1] - No SD Card Found
 LEDG[2] - No Master Boot Record Found in any memory
+>>>>>>> 9d937c7c311d1c4deb65b190ff4dccd0acc6d7f5
