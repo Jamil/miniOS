@@ -1,4 +1,5 @@
-```CPU   																			0x0a000000  
+```
+CPU   																			0x0a000000  
 JTAG_UART 																	0x10001000  
 Interval_Timer  														0x10002000  
 sysid 																			0x10002020  
