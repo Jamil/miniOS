@@ -1,4 +1,4 @@
-CPU   																			0x0a000000  
+```CPU   																			0x0a000000  
 JTAG_UART 																	0x10001000  
 Interval_Timer  														0x10002000  
 sysid 																			0x10002020  
@@ -30,3 +30,4 @@ alon_char_control_slave   									0x09000000
 External_Clocks 														0x10002030  
 Altera_UP_SD_Card_Avalon_Interface_					0x00800000  
 Altera_UP_Flash_Memory_IP_Core_Avalon				0x01000000  
+```
