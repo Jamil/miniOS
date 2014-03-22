@@ -26,27 +26,49 @@ printChar:
 # r5 = row to print to
 
 updateLine:
-  # Save registers r4 through r6
-  subi sp, sp, 12
-  stw  r4, -8(sp)
-  stw  r5, -4(sp)
-  stw  r6, (sp)
-  
+  # Save return address
+  subi sp, sp, 4
+  stw ra, (sp)
+
   # Save callee-save registers
-  subi sp, sp 20
+  subi sp, sp, 20
   stw  r16, -16(sp)
   stw  r17, -12(sp)
   stw  r18, -8(sp)
   stw  r19, -4(sp)
   stw  r20, (sp)
 
-  mov   r16, r5
-  muli  r16, r16, 128            # Relative base address of line
-  movia r17, CHAR_BUFFER        
-  add   r5, r5, r17              # Absolute base address of line
+  mov r16, r5               # Row to print to
+  mov r17, r0               # Column to print to
+  mov r18, r4               # Mutable pointer to string  
 
-string_iter:                  # Iterate through string, print each character
+string_iter:                   # Iterate through string, print each character
+  ldw  r19, (r18)              # Load character into register
+  beq  r19, r0, done           # Return from function when null-terminating character reached
+  mov  r4, r19                 # Character to print
+  mov  r5, r17                 # Column (x-coord)
+  mov  r6, r16                 # Row (y-coord)
+  call printChar
   
+  addi r18, r18, 1             # Increment pointer
+  addi r17, r17, 1             # Increment column number
+
+  br string_iter
+
+done:
+  # Restore callee-save registers
+  ldw r20, (sp)
+  ldw r19, -4(sp)
+  ldw r18, -8(sp)
+  ldw r17, -12(sp)
+  ldw r16, -16(sp)
+  addi sp, sp, 12
+
+  # Restore return address
+  ldw ra, (sp)
+  addi sp, sp, 4
+
+  ret
 
 
 
