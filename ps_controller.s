@@ -81,18 +81,26 @@ ascii_slash:
 .equ STOP_CHAR, 0xF0  ##this code is used after a key is released followd by the key code ex: F0,XX
 .equ FILL_CHAR, 0xE0  ##this code is used before the arrows keys ex, E0,XX or if is released EO,FO,XX
 .equ SHIFT, 0x12      ##this is the code for shift
+.equ shift_press, 0x00120000
+
 
 .global ps2controller
 
 ###
 ###
-##parameters
-##r4=> state of the shift character
+##parameters non
 ##returns
 ##r2=> character send by keyboard, null if nothing
-##r3=> new state of shift character
+##r3=> if the value in r2 is valid
 ###
 ###
+
+
+
+movia r17,shift_press
+stw r3,(r17)
+	
+
 
 ##state of shift character=> 0 for not press, 1 for pressed
 
@@ -109,12 +117,11 @@ ps2controller:
   stw ra, 20(sp)  
  
   mov r2,r0    ##initiales r2 return ascci charanter to null--> nothing
-  mov r3,r3    ##initialiseing r3 to old state of shift character
+  mov r3,r0    ##initialiseing r3 to invaliud value
   
   
   
-  movia r10,0xA
-  addi r11,r11,1
+  
  
  ##loading the first character from the ps2 buffer
 
@@ -130,10 +137,14 @@ load_again:
   beq r18,r19,load_again
   
   movia r18,STOP_CHAR    ##if FO was in the begganing load one more character and ret
-  beq r18,r19,check_shift_up
+  bne r18,r19,check_shift_down
+  
+  ldwio r19,0(r16)
+  andi r19,r19,0xFF
+  
 
   movia r18,SHIFT    ##if FO was in the begganing load one more character and ret
-  beq r18,r19,shift_down
+  beq r18,r19,shift_up
   
   movia r16,ps2_char    ##load the address with the array of the values of ps2 controller  
   
@@ -156,7 +167,15 @@ loop_check_ps2:         ##loop until the value that it euals to one of the ps2 c
   ldb r2,0(r16)
   andi r2,r2,0xFF  
   
-  beq r4,r0,empty_buffer            ##check if shift was pressed before the call
+  
+
+  movi r3,1
+ 
+  
+  movia r18,shift_press
+  ldw r18,(r18)
+  
+  beq r18,r0,empty_buffer            ##check if shift was pressed during  the call, branch if is not
   movi r16,26
   bge r17,r16,empty_buffer          ##check if char is a letter
  
@@ -164,21 +183,26 @@ change_uppercase:             ##changes char to uppercase  by subtracting 0x20 t
   movia r16,-0x20
   add r2,r2,r16
   br empty_buffer
-  
-shift_down:                   ##change r3 to one because shift was press
-  movi r16,1
-  mov r3,r16
+
+shift_up:                   ##change shift_press to ZERO because shift was release
+  movia r18,shift_press           
+  stw r0,(r18)
   br empty_buffer 
-check_shift_up:               ##check if shift was released, must load a new char
+  
+  
+check_shift_down:               ##check if shift was released, must load a new char
   movia r16,PS2_ADDRESS
   
-  ldwio r19,0(r16)
+  ldwio r19,0(r16)              ##r19 has the value of wethever r16 was press before
   andi r19,r19,0xFF
 	
   movi r16,SHIFT          
-  bne r19,r16,empty_buffer
+  bne r19,r16,empty_buffer_check_FO
     
-  mov r3,r0                 ##set r3 equal to zero because shift has been release
+  movi r16,1           
+  movia r18,shift_press           ##set shift_press equal to zero because shift has been pressed
+  stw r16,(r18)
+  
   br empty_buffer
 	
 empty_buffer:               ##empties buffer int eh ps2 controllor if any more char has been send
@@ -187,7 +211,19 @@ empty_buffer:               ##empties buffer int eh ps2 controllor if any more c
   ldwio r19,0(r16)          
   srli r19,r19,16
   bne r19,r0,empty_buffer
-   
+  br finish
+  
+  
+empty_buffer_check_FO:               ##empties buffer int eh ps2 controllor if any more char has been send
+  movia r16,PS2_ADDRESS
+  movi r18,0xF0
+  
+  ldwio r19,0(r16)          
+  srli r19,r19,16
+  
+  bne r19,r0,empty_buffer_check_FO
+  br finish
+  
 finish:
 
   ldw r16,0(sp)
