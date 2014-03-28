@@ -4,10 +4,14 @@
 .section .exceptions, "ax"
 
 myISR:
-    
+##    addi r10,r10,0xF0
+   
+   
+##   movia et, ADDR_GREENLEDS
+##   stwio r10,(et)
+##	movia et, ADDR_REDLEDS
+##    stwio r11,(et)
 
-	
-	
 	addi sp,sp,-28
 	stw r16,0(sp)
 	stw r17,4(sp)
@@ -16,22 +20,29 @@ myISR:
 	stw r2,16(sp)
 	stw r4,20(sp)
 	stw ra, 24(sp)
-	
-	movia r16, TIMER
-	stwio r0, 4(r16)
-	
-	
+		
+
+		
 	rdctl et,ctl4
-	             #07643210   
-	andi r17,et,0b01000000
-	beq 17,r0, call_ps2
-    br GOTOEND
+	             #0 7643210   
+	andi r17,et,0x80
+	bne r17,r0, call_ps2
+	    
+	br GOTOEND
 	
 call_ps2:
-    mov r8,r4
+	
+	movia r17,shift_press
+	ldw r4,(r17)
+	
+	movi r10,0x00
 	call ps2controller
-	mov r8,r3
-	mov r9,r2
+	
+	movia r17,shift_press
+	stw r2,(r17)
+	
+	mov r10,r2
+	
 	br GOTOEND
 	
 GOTOEND:
@@ -57,7 +68,7 @@ getout2:
 .equ PS2, 0x10000100 
 .equ ADDR_REDLEDS, 0x10000000	
 .equ ADDR_GREENLEDS, 0x10000010
-
+.equ shift_press, 0x00100010
 
 .global main
 
@@ -66,25 +77,42 @@ main:
 
 
 GET_INTERRUPTS:
-	movia r8,PS2
+    movi sp,0x3000     ##initialiseing stack pointer
+ 	
+	movia r8,PS2       ##enabling interutps in ps2
 	movi r9,1
 	stwio r9,4(r8)
-	
-	movia r8,0b01000000          
+
+              #876543210	
+	movia r8,0b010000000    ##inable in the interrupt   in ienable 
 	wrctl ctl3,r8
-	movi r8,1
+	
+	movi r8,1              ##enable pie
 	wrctl ctl0,r8
 	
-	mov r8,r0
+	movia r8,shift_press
+	movi r9,0
+	stw r9,(r8)
+	
+	
+	
+	mov r8,r0              ##set dummy virables r8 , r9
 	mov r9,r0
+	
+	movi r10,0x0F
+	movi r11,0x01
 	
 	movia r16,ADDR_GREENLEDS
 	movia r17,ADDR_REDLEDS
 	
 loop_main:
-   
-    stwio r8,(ADDR_GREENLEDS)
-	stwio r9,(ADDR_REDLEDS)
+
+    stwio r10,(r16)
+	stwio r11,(r17)
+	
+#stwio r8,(r16)
+#stwio r9,(r17)
+	
 	
 	br loop_main
 	
