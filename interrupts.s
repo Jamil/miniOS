@@ -12,6 +12,7 @@ myISR:
 ##	movia et, ADDR_REDLEDS
 ##    stwio r11,(et)
 
+    ##saves regiistorers into stack
 	addi sp,sp,-28
 	stw r16,0(sp)
 	stw r17,4(sp)
@@ -22,7 +23,7 @@ myISR:
 	stw ra, 24(sp)
 		
 
-		
+	## checks if the interreupt is from the key board	
 	rdctl et,ctl4
 	             #0 7643210   
 	andi r17,et,0x80
@@ -32,16 +33,19 @@ myISR:
 	
 call_ps2:
 	
-	movia r17,shift_press
-	ldw r4,(r17)
+    	
 	
-	movi r10,0x00
+	##call the keyboard control function
 	call ps2controller
 	
-	movia r17,shift_press
-	stw r2,(r17)
-	
+########################	
+     #must remove
+####################
+    beq r3,r0,notload_test
 	mov r10,r2
+notload_test:	
+#######################
+	
 	
 	br GOTOEND
 	
@@ -68,7 +72,7 @@ getout2:
 .equ PS2, 0x10000100 
 .equ ADDR_REDLEDS, 0x10000000	
 .equ ADDR_GREENLEDS, 0x10000010
-.equ shift_press, 0x00100010
+.equ shift_press, 0x00120000
 
 .global main
 
