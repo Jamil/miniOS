@@ -1,3 +1,16 @@
+# In SDRAM
+
+| Component                                  | Start Address  | End Address     |
+| ------------------------------------------ | :------------: | :-------------: |
+|   Exception Vector                         | 0x00000020     |                 |
+|   BIOS                                     | 0x00001000     |                 |
+|   Bootloader                               | 0x00007C00     |                 |
+|   Free                                     | 0x00100000     |                 |
+|   - I/O Temporary                          | 0x00110000     | 0x001FFFFF      |
+|   -- VGA Temporary                         | 0x00110000     | 0x00120000      |
+
+# Memory Map
+
 | Component                                  | Start Address  |
 | ------------------------------------------ | :------------: |
 | **CPU**                                    | 0x0a000000     | 
@@ -5,10 +18,6 @@
 | **Interval_Timer**                         | 0x10002000     | 
 | **sysid**                                  | 0x10002020     | 
 | **SDRAM**                                  | 0x00000000     | 
-|   Exception Vector                         | 0x00000020     | 
-|   BIOS                                     | 0x00001000     | 
-|   Bootloader                               | 0x00007C00     | 
-|   Free                                     | 0x00100000     | 
 | **END**                                    | 0x007FFFFF     | 
 | **Red_LEDs**                               | 0x10000000     | 
 | **Green_LEDs**                             | 0x10000010     | 
