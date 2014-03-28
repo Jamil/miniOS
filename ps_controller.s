@@ -15,7 +15,8 @@
 ps2_char:
 ps2_Alphabte:
 .byte 0x1C,0x32,0x21,0x23,0x24,0x2B,0x34,0x33,0x43,0x3B,0x42,0x4B,0x3A,0x31,0x44,0x4D,0x15,0x2D,0x1B,0x2C,0x3C,0x2A,0x1D,0x22,0x35,0x1A
-
+######  A    b   c    d    e    f     g   h     i    j   k     m   n
+######  0     1   2   3   4     5    6    7     8    
 
 number:
 .byte 0x45,0x16,0x1E,0x26,0x25,0x2E,0x36,0x3D,0x3E,0x46
@@ -112,7 +113,8 @@ ps2controller:
   
   
   
-
+  movia r10,0xA
+  addi r11,r11,1
  
  ##loading the first character from the ps2 buffer
 
@@ -121,6 +123,8 @@ load_again:
 
   ldwio r19,0(r16)
   andi r19,r19,0xFF
+  
+  
   
   movia r18,FILL_CHAR    ##if EO was in the begganing go back to load_agian to load the next character
   beq r18,r19,load_again
@@ -134,13 +138,14 @@ load_again:
   movia r16,ps2_char    ##load the address with the array of the values of ps2 controller  
   
   add r17,r0,r0        
-
+  addi r17,r17,-1 
   
-loop_check_ps2          ##loop until the value that it euals to one of the ps2 codes in thee array
+loop_check_ps2:         ##loop until the value that it euals to one of the ps2 codes in thee array
+   
+  addi r17,r17,1       
   add r20,r16,r17        
   ldb r18,0(r20)        ##loading loads ps2 code from array
   andi r18,r18,0xFF     ##mask the code.
-  addi r17,r17,1       
   
   movi r20,48
   bge r17,r20, empty_buffer   ##checks if iterator is greater than 48(maxsize of array)
@@ -192,5 +197,7 @@ finish:
   ldw r20,16(sp)
   ldw ra, 20(sp) 
   addi sp,sp,24
+  
+  ret
 
 .end
