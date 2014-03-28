@@ -7,7 +7,9 @@
 |   Bootloader                               | 0x00007C00     |                 |
 |   Free                                     | 0x00100000     |                 |
 |   - I/O Temporary                          | 0x00110000     | 0x001FFFFF      |
-|   -- VGA Temporary                         | 0x00110000     | 0x00120000      |
+|   -- VGA Temporary                         | 0x00110000     | 0x0011FFFF      |
+|   --keyboard Temporary                     | 0x00120000     | 0x0012FFFF      |
+
 
 # Memory Map
 
