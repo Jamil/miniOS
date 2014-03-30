@@ -162,8 +162,8 @@ queueLen:
 newLine:
   movi r14, 59              # Maximum row number
   call queueLen             # Check length of queue 
-  bge r2, r14               # If screen is full, scroll instead of appending
-  blt r2, r14               # Otherwise, just append the line to the end
+  bge r2, r14, appendLine   # If screen is full, scroll instead of appending
+  blt r2, r14, shiftLines   # Otherwise, just append the line to the end
 
 appendLine:
   mov r14, r4               # Move the pointer to the string so it doesn't get clobbered
@@ -180,12 +180,12 @@ appendLine:
   ret 
 
 shiftLines:
-  mov r8, CHAR_BUFFER 
-  mov r9, 128               # Starting point of iterator (destination location)
+  movi r8, CHAR_BUFFER 
+  movi r9, 128               # Starting point of iterator (destination location)
   add r9, r9, r8
-  mov r10, 256              # Starting point of iterator (source location)
+  movi r10, 256              # Starting point of iterator (source location)
   add r10, r10, r8
-  mov r11, 128
+  movi r11, 128
   muli r11, r11, 59         # Limit (for destination pointer)
   add r11, r11, r8
 copy_iter:

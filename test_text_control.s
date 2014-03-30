@@ -25,16 +25,20 @@ main:
   movi r4, 2
   call resetLine
   
-  movia r4, str
-  movi r5, 2
-  call updateLine
+  movi r16, 10		# Repeat until...
+  movi r17, 0		# Iterator
   
-  movi r4, 2
-  call resetLine
+print_loop:
+  bgt r17, r16, end
+  
+  movia r4, str
+  call newLine
   
   movia r4, str2
-  movi r5, 2
-  call updateLine
+  call newLine
+  
+  addi r17, r17, 1
+  br print_loop
   
 end:
   br end
