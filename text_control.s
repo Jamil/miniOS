@@ -180,9 +180,22 @@ appendLine:
   ret 
 
 shiftLines:
-  mov r14, r4               # Move the pointer to the string so it doesn't get clobbered
-  mov r15, 2                # Iterator (line to shift upward)
-shift_loop:
-  mov r16, 128              # Size of y offset
-  mul r16, r16, r15         # total offset
+  mov r8, CHAR_BUFFER 
+  mov r9, 128               # Starting point of iterator (destination location)
+  add r9, r9, r8
+  mov r10, 256              # Starting point of iterator (source location)
+  add r10, r10, r8
+  mov r11, 128
+  muli r11, r11, 59         # Limit (for destination pointer)
+  add r11, r11, r8
+copy_iter:
+  bgt r10, r11, done_cpy    # Branch when reach limit
+  ldb r12, (r10)            # Load byte from source location
+  stb r12, (r9)             # Store byte in destination 
+  addi r10, r10, 1
+  addi r9, r9, 1
+  br copy_iter
+done_cpy:
+  movi r2, 60
+  br appendLine 
 
