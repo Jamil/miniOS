@@ -81,8 +81,14 @@ ascii_slash:
 .equ STOP_CHAR, 0xF0  ##this code is used after a key is released followd by the key code ex: F0,XX
 .equ FILL_CHAR, 0xE0  ##this code is used before the arrows keys ex, E0,XX or if is released EO,FO,XX
 .equ SHIFT, 0x12      ##this is the code for shift
-.equ shift_press, 0x00120000
+.equ BACKSPACE, 0x8      ##this is the code for shift
 
+
+.equ shift_press, 0x00120000      ##boolean that show if shift is been pressed, 1 if yes, 0 of no
+.equ buffer_control, 0x00120010   ##size of the string buffer 
+.equ buffer_read, 0x00120020   ##pointer address that must start to read
+.equ buffer_start, 0x00120100  ##actual start adrees of the buffer
+.equ buffer_show_size, 60
 
 .global ps2controller
 
@@ -96,32 +102,20 @@ ascii_slash:
 ###
 
 
-
-movia r17,shift_press
-stw r3,(r17)
-	
-
-
 ##state of shift character=> 0 for not press, 1 for pressed
 
 
 ps2controller:
 
 ##saving register to stack
-  addi sp,sp,-24
+  addi sp,sp,-28
   stw r16,0(sp)
   stw r17,4(sp)
   stw r18,8(sp)
   stw r19,12(sp)
   stw r20,16(sp)
-  stw ra, 20(sp)  
- 
-  mov r2,r0    ##initiales r2 return ascci charanter to null--> nothing
-  mov r3,r0    ##initialiseing r3 to invaliud value
-  
-  
-  
-  
+  stw r21,20(sp)
+  stw ra, 24(sp)  
  
  ##loading the first character from the ps2 buffer
 
@@ -129,6 +123,9 @@ load_again:
   movia r16,PS2_ADDRESS
 
   ldwio r19,0(r16)
+  srli r21,r19,16
+  beq r21,r0,finish
+  
   andi r19,r19,0xFF
   
   
@@ -137,14 +134,35 @@ load_again:
   beq r18,r19,load_again
   
   movia r18,STOP_CHAR    ##if FO was in the begganing load one more character and ret
-  bne r18,r19,check_shift_down
+  beq r18,r19,load_real_ascii
+  
+check_shift_down:               ##check if shift was pressed, must load a new char
+ 	
+  movi r16,SHIFT          
+  bne r19,r16,load_again
+    
+  movi r16,1           
+  movia r18,shift_press           ##set shift_press equal to zero because shift has been pressed
+  stw r16,(r18)
+  
+  br load_again 
+  
+  
+  
+load_real_ascii:  
   
   ldwio r19,0(r16)
+  srli r21,r19,16
+  beq r21,r0,finish
+  
   andi r19,r19,0xFF
   
 
   movia r18,SHIFT    ##if FO was in the begganing load one more character and ret
   beq r18,r19,shift_up
+  
+  movia r18,BACKSPACE    ##if FO was in the begganing load one more character and ret
+  beq r18,r19,back_space_pressed
   
   movia r16,ps2_char    ##load the address with the array of the values of ps2 controller  
   
@@ -159,70 +177,101 @@ loop_check_ps2:         ##loop until the value that it euals to one of the ps2 c
   andi r18,r18,0xFF     ##mask the code.
   
   movi r20,48
-  bge r17,r20, empty_buffer   ##checks if iterator is greater than 48(maxsize of array)
+  bge r17,r20, load_again   ##checks if iterator is greater than 48(maxsize of array), if greater a non key was press
   bne r19,r18, loop_check_ps2  ## the code is equal to the ps2 code in the array
   
   movia r16,ascii_char
-  add r16,r16,r17              ##loading corresponding ASCII value to r2
-  ldb r2,0(r16)
-  andi r2,r2,0xFF  
-  
-  
-
-  movi r3,1
- 
+  add r16,r16,r17              ##loading corresponding ASCII value to r21
+  ldb r21,0(r16)
+  andi r21,r21,0xFF  
   
   movia r18,shift_press
   ldw r18,(r18)
   
-  beq r18,r0,empty_buffer            ##check if shift was pressed during  the call, branch if is not
+  beq r18,r0,save_bufffer            ##check if shift was pressed during  the call, branch if is not
   movi r16,26
-  bge r17,r16,empty_buffer          ##check if char is a letter
+  bge r17,r16,save_bufffer          ##check if char is a letter
  
 change_uppercase:             ##changes char to uppercase  by subtracting 0x20 to the ascci value
   movia r16,-0x20
-  add r2,r2,r16
-  br empty_buffer
+  add r21,r21,r16
+  br save_bufffer
 
 shift_up:                   ##change shift_press to ZERO because shift was release
   movia r18,shift_press           
   stw r0,(r18)
-  br empty_buffer 
+  br load_again 
+ 
+
+save_bufffer:
+
+  movia r18, buffer_control  ##size of the string buffer 
+  movia r16, buffer_start    ##start memory of string buffer
+  
+  ldw r19,(r18)              ##loads size of buffer
+
+  add r16,r16,r19           ##adds size of buffer to adress
+  
+  stw r21,(r16)              ##stores new char in null character
+  
+  addi r16,r16,1 
+  
+  stw r0,(r16)              ##places new null terminating character
+  
+  addi r19,r19,1             ##adds one to the size of buffer and stores it
+  
+  stw r19,(r18)
+  
+  movi r16,buffer_show_size   ##check if string is greater than 60
+  
+  sub r19,r19,r16
+  
+  blt r19,r0,no_read_offset
+  br read_offset
+
+  
+back_space_pressed:
+  movia r18, buffer_control  ##size of the string buffer 
+  movia r16, buffer_start    ##start memory of string buffer
+  
+  ldw r19,(r18)              ##loads size of buffer
+
+  beq r19,r0,no_read_offset  ##if size of string is zero does nothing
+  
+  add r16,r16,r19           ##adds size of buffer to adress
+  subi r16,r16,1            ##replaces last character for null termanitng char
+  
+  stw r0,(r16)              ##places new null terminating character
+  
+  subbi r19,r19,1             ##adds one to the size of buffer and stores it
+  
+  stw r19,(r18)
+  
+  movi r16,buffer_show_size   ##check if string is greater than 60
+  
+  sub r19,r19,r16
+  
+  blt r19,r0,no_read_offset
+  br read_offset
   
   
-check_shift_down:               ##check if shift was released, must load a new char
-  movia r16,PS2_ADDRESS
   
-  ldwio r19,0(r16)              ##r19 has the value of wethever r16 was press before
-  andi r19,r19,0xFF
-	
-  movi r16,SHIFT          
-  bne r19,r16,empty_buffer_check_FO
-    
-  movi r16,1           
-  movia r18,shift_press           ##set shift_press equal to zero because shift has been pressed
+read_offset:
+  movia r16, buffer_start    ##creaters an offest for the read pointer
+  add r16,r16,r19
+  
+  movia r18,buffer_read
+  stw r16,(r18)
+  br load_again
+  
+  
+no_read_offset:  
+  movia r16, buffer_start    ##set the read pointer equal to the start of the buffer
+  
+  movia r18,buffer_read
   stw r16,(r18)
   
-  br empty_buffer
-	
-empty_buffer:               ##empties buffer int eh ps2 controllor if any more char has been send
-  movia r16,PS2_ADDRESS
-  
-  ldwio r19,0(r16)          
-  srli r19,r19,16
-  bne r19,r0,empty_buffer
-  br finish
-  
-  
-empty_buffer_check_FO:               ##empties buffer int eh ps2 controllor if any more char has been send
-  movia r16,PS2_ADDRESS
-  movi r18,0xF0
-  
-  ldwio r19,0(r16)          
-  srli r19,r19,16
-  
-  bne r19,r0,empty_buffer_check_FO
-  br finish
+  br load_again
   
 finish:
 
@@ -231,8 +280,9 @@ finish:
   ldw r18,8(sp)
   ldw r19,12(sp)
   ldw r20,16(sp)
-  ldw ra, 20(sp) 
-  addi sp,sp,24
+  ldw r21,20(sp)
+  ldw ra, 24(sp)  
+  addi sp,sp,28
   
   ret
 
