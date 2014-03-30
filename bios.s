@@ -7,6 +7,15 @@
 bootloader_location: 
 .skip 512
 
+str_boot:         .asciz "Good morning, Dr. Chandra. This is HAL. I'm ready for my first lesson."
+str_sd:           .asciz "Looking for SD Card. Timeout in 10 seconds."
+str_notfound:     .asciz "Could not find SD Card. I'll try the SRAM now."
+str_bootsearch:   .asciz "Disk found. Checking Master Boot Record (MBR) for signature 0xaa55."
+str_bootfail:     .asciz "No boot record found on disk. Aborting."
+str_bootsuc:      .asciz "MBR found. Loading bootloader into memory."
+str_loadfail:     .asciz "Could not load bootloader into main memory. Aborting."
+str_loadsucc:     .asciz "Exiting BIOS and passing control to bootloader."
+
 .section .text
 
 # BIOS Operations

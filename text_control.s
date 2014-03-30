@@ -3,6 +3,7 @@
 
 .equ VGA_BUFFER, 0x08000000
 .equ CHAR_BUFFER, 0x09000000
+.equ TEMP_STORE, 0x00110000
 
 .global printChar
 .global updateLine
@@ -117,7 +118,6 @@ endreset:
   ldw ra, (sp)
   addi sp, sp, 4
   ret
-
   
 # Function: clearScreen
 # Sets the entire row to black
@@ -134,4 +134,55 @@ clearLoop:
   addi r6, r6, 2          # Increment by 4
   br clearLoop 
 endclear:
-  ret
+  ret 
+
+
+###### QUEUE OPERATIONS ######
+
+## newLine
+##  Inserts a new line into the VGA queue, scrolling up if necessary.
+
+## queueLen
+##  Returns the number of lines in the queue
+
+## replaceLine
+##  Replaces the latest line in the queue
+
+# Function: queueLen
+# r2 <= Length of queue 
+
+# Function: newLine 
+# r4 => pointer to string 
+
+queueLen:
+  movia r14, TEMP_STORE     # Load temporary storage block address
+  ldw r2, (r14)             # Load contents of block
+  ret 
+
+newLine:
+  movi r14, 59              # Maximum row number
+  call queueLen             # Check length of queue 
+  bge r2, r14               # If screen is full, scroll instead of appending
+  blt r2, r14               # Otherwise, just append the line to the end
+
+appendLine:
+  mov r14, r4               # Move the pointer to the string so it doesn't get clobbered
+  mov r5, r2                # Row to print to 
+  addi r5, r5, 1            # Offset by 1
+  
+  subi sp, sp, 4            # Save return address 
+  stw ra, (sp)
+  
+  call updateLine 
+
+  ldw ra, (sp)              # Restore return address 
+  addi sp, sp, 4
+  ret 
+
+shiftLines:
+  mov r14, r4               # Move the pointer to the string so it doesn't get clobbered
+  mov r15, 2                # Iterator (line to shift upward)
+shift_loop:
+  mov r16, 128              # Size of y offset
+  mul r16, r16, r15         # total offset
+
