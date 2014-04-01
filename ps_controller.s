@@ -83,7 +83,7 @@ ascii_slash:
 .equ SHIFT, 0x12      ##this is the code for shift
 .equ BACKSPACE, 0x8      ##this is the code for shift
 
-
+##buffer register
 .equ shift_press, 0x00120000      ##boolean that show if shift is been pressed, 1 if yes, 0 of no
 .equ buffer_control, 0x00120010   ##size of the string buffer 
 .equ buffer_read, 0x00120020   ##pointer address that must start to read
@@ -106,8 +106,10 @@ ascii_slash:
 
 
 ps2controller:
+  addi r11,r11,0x100
 
-##saving register to stack
+  
+  ##saving register to stack
   addi sp,sp,-28
   stw r16,0(sp)
   stw r17,4(sp)
@@ -150,24 +152,39 @@ check_shift_down:               ##check if shift was pressed, must load a new ch
   
   
 load_real_ascii:  
+  movia r16,PS2_ADDRESS
+  
+  mov r15,r19
+  
+  
+  addi r11,r11,0x1000
   
   ldwio r19,0(r16)
+ 
   srli r21,r19,16
+   
   beq r21,r0,finish
   
   andi r19,r19,0xFF
   
+ 
 
   movia r18,SHIFT    ##if FO was in the begganing load one more character and ret
   beq r18,r19,shift_up
   
+  movi r15,0x44
+
   movia r18,BACKSPACE    ##if FO was in the begganing load one more character and ret
   beq r18,r19,back_space_pressed
+  
+  movi r15,0xcc
   
   movia r16,ps2_char    ##load the address with the array of the values of ps2 controller  
   
   add r17,r0,r0        
   addi r17,r17,-1 
+  
+  movi r15,0xee
   
 loop_check_ps2:         ##loop until the value that it euals to one of the ps2 codes in thee array
    
@@ -177,8 +194,19 @@ loop_check_ps2:         ##loop until the value that it euals to one of the ps2 c
   andi r18,r18,0xFF     ##mask the code.
   
   movi r20,48
+  
+  addi r11,r11,0x4000
+  
+  add r15,r19,r0
+  movi r15,0xaa
+ 
   bge r17,r20, load_again   ##checks if iterator is greater than 48(maxsize of array), if greater a non key was press
+  
+  addi r11,r11,0x4000
+  
   bne r19,r18, loop_check_ps2  ## the code is equal to the ps2 code in the array
+  
+
   
   movia r16,ascii_char
   add r16,r16,r17              ##loading corresponding ASCII value to r21
@@ -204,6 +232,8 @@ shift_up:                   ##change shift_press to ZERO because shift was relea
  
 
 save_bufffer:
+  movia r18,0x10000
+  add r11,r18,r11
 
   movia r18, buffer_control  ##size of the string buffer 
   movia r16, buffer_start    ##start memory of string buffer
@@ -243,7 +273,7 @@ back_space_pressed:
   
   stw r0,(r16)              ##places new null terminating character
   
-  subbi r19,r19,1             ##adds one to the size of buffer and stores it
+  subi r19,r19,1             ##adds one to the size of buffer and stores it
   
   stw r19,(r18)
   

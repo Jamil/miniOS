@@ -41,8 +41,19 @@ call_ps2:
 ########################	
      #must remove
 ####################
-    beq r3,r0,notload_test
-	mov r10,r2
+    movia r8,buffer_start    ##initialise the first character to null
+	ldw r10,(r8)
+	addi r10,r10,1
+	
+	movia r8,buffer_control    ##initialise the first character to null
+	ldw r17,(r8)
+	add r19,r0,r11
+	andi r19,r19,0xff
+	xor r11,r19,r11
+	
+	or r11,r11,r17
+	
+
 notload_test:	
 #######################
 	
@@ -72,7 +83,14 @@ getout2:
 .equ PS2, 0x10000100 
 .equ ADDR_REDLEDS, 0x10000000	
 .equ ADDR_GREENLEDS, 0x10000010
-.equ shift_press, 0x00120000
+
+##buffer register
+.equ shift_press, 0x00120000      ##boolean that show if shift is been pressed, 1 if yes, 0 of no
+.equ buffer_control, 0x00120010   ##size of the string buffer 
+.equ buffer_read, 0x00120020   ##pointer address that must start to read
+.equ buffer_start, 0x00120100  ##actual start adrees of the buffer
+.equ buffer_show_size, 60
+
 
 .global main
 
@@ -94,9 +112,24 @@ GET_INTERRUPTS:
 	movi r8,1              ##enable pie
 	wrctl ctl0,r8
 	
-	movia r8,shift_press
-	movi r9,0
-	stw r9,(r8)
+	movia r8,shift_press      ##initialise shift to  unpress
+	stw r0,(r8)
+	
+	movia r8,buffer_control  ##initialise the size to 0
+	stw r0,(r8)
+	
+	movia r8,buffer_start    ##initialise the first character to null
+	stw r0,(r8)
+	
+	movia r9,buffer_read     ##initialise the read character to the start character
+	stw r8,(r9)
+	
+	
+	
+	
+	####initialse buffer controls
+	
+	
 	
 	
 	
@@ -111,8 +144,10 @@ GET_INTERRUPTS:
 	
 loop_main:
 
-    stwio r10,(r16)
-	stwio r11,(r17)
+
+##r11,r10
+    stwio r15,(r16)
+	stwio r15,(r17)
 	
 #stwio r8,(r16)
 #stwio r9,(r17)
