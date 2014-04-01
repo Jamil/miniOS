@@ -9,6 +9,8 @@
 .global updateLine
 .global clearScreen
 .global resetLine
+.global newLine
+.global VGA_INIT
 
 # Function: printChar
 # Prints character to screen at location (x, y)
@@ -148,36 +150,36 @@ endclear:
 ## replaceLine
 ##  Replaces the latest line in the queue
 
+# Function: VGA_INIT
+# Initializes VGA queue memory
+
+VGA_INIT:
+  movia r14, TEMP_STORE
+  movi r15, 1
+  stw r15, (r14)
+  ret
+ 
 # Function: queueLen
 # r2 <= Length of queue 
-
-# Function: newLine 
-# r4 => pointer to string 
 
 queueLen:
   movia r14, TEMP_STORE     # Load temporary storage block address
   ldw r2, (r14)             # Load contents of block
   ret 
 
+# newLine
+# Inserts a new line into the VGA queue, scrolling up if necessary.  
+# r4 => Pointer to string to print
+
 newLine:
   movi r14, 59              # Maximum row number
-  call queueLen             # Check length of queue 
-  bge r2, r14, appendLine   # If screen is full, scroll instead of appending
-  blt r2, r14, shiftLines   # Otherwise, just append the line to the end
-
-appendLine:
-  mov r14, r4               # Move the pointer to the string so it doesn't get clobbered
-  mov r5, r2                # Row to print to 
-  addi r5, r5, 1            # Offset by 1
   
-  subi sp, sp, 4            # Save return address 
   stw ra, (sp)
+  call queueLen             # Check length of queue 
+  ldw ra, (sp)  
   
-  call updateLine 
-
-  ldw ra, (sp)              # Restore return address 
-  addi sp, sp, 4
-  ret 
+  bge r2, r14, shiftLines   # If screen is full, scroll instead of appending
+  blt r2, r14, appendLine   # Otherwise, just append the line to the end
 
 shiftLines:
   movi r8, CHAR_BUFFER 
@@ -196,6 +198,25 @@ copy_iter:
   addi r9, r9, 1
   br copy_iter
 done_cpy:
-  movi r2, 60
-  br appendLine 
+  movi r2, 59
+  br appendLine
+  
+appendLine:
+  mov r14, r4               # Move the pointer to the string so it doesn't get clobbered
+  mov r5, r2                # Row to print to 
+  addi r5, r5, 1            # Offset by 1
+  
+  subi sp, sp, 4            # Save return address 
+  stw ra, (sp)
+  
+  call updateLine 
+
+  ldw ra, (sp)              # Restore return address 
+  addi sp, sp, 4
+  
+  movi r14, TEMP_STORE
+  addi r2, r2, 1
+  stw r2, (r14)
+  
+  ret
 
