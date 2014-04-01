@@ -125,12 +125,19 @@ load_again:
   movia r16,PS2_ADDRESS
 
   ldwio r19,0(r16)
+  
+  mov r14,r19
+  
+ 
+  
+  
   srli r21,r19,16
   beq r21,r0,finish
   
   andi r19,r19,0xFF
   
-  
+  slli r15,8
+  or r15,r15,r19
   
   movia r18,FILL_CHAR    ##if EO was in the begganing go back to load_agian to load the next character
   beq r18,r19,load_again
@@ -154,7 +161,6 @@ check_shift_down:               ##check if shift was pressed, must load a new ch
 load_real_ascii:  
   movia r16,PS2_ADDRESS
   
-  mov r15,r19
   
   
   addi r11,r11,0x1000
@@ -162,29 +168,31 @@ load_real_ascii:
   ldwio r19,0(r16)
  
   srli r21,r19,16
+  
+   
    
   beq r21,r0,finish
   
+  
+  
   andi r19,r19,0xFF
   
- 
+  
 
   movia r18,SHIFT    ##if FO was in the begganing load one more character and ret
   beq r18,r19,shift_up
   
-  movi r15,0x44
-
+  
+  
   movia r18,BACKSPACE    ##if FO was in the begganing load one more character and ret
   beq r18,r19,back_space_pressed
   
-  movi r15,0xcc
   
   movia r16,ps2_char    ##load the address with the array of the values of ps2 controller  
   
   add r17,r0,r0        
   addi r17,r17,-1 
   
-  movi r15,0xee
   
 loop_check_ps2:         ##loop until the value that it euals to one of the ps2 codes in thee array
    
@@ -197,9 +205,7 @@ loop_check_ps2:         ##loop until the value that it euals to one of the ps2 c
   
   addi r11,r11,0x4000
   
-  add r15,r19,r0
-  movi r15,0xaa
- 
+
   bge r17,r20, load_again   ##checks if iterator is greater than 48(maxsize of array), if greater a non key was press
   
   addi r11,r11,0x4000

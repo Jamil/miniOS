@@ -146,7 +146,7 @@ loop_main:
 
 
 ##r11,r10
-    stwio r15,(r16)
+    stwio r14,(r16)
 	stwio r15,(r17)
 	
 #stwio r8,(r16)
