@@ -150,6 +150,21 @@ endclear:
 ## replaceLine
 ##  Replaces the latest line in the queue
 
+# Function: replaceLine
+# r4 => Pointer to string 
+
+replaceLine:
+  movi r14, 59              # Maximum row number
+  
+  stw ra, (sp)
+  call queueLen             # Check length of queue 
+  ldw ra, (sp)  
+  
+  mov r5, r2                # Set second arg to line number
+                            # (first argument already stored in r4)
+  call updateLine
+  ret 
+
 # Function: VGA_INIT
 # Initializes VGA queue memory
 
