@@ -150,6 +150,15 @@ endclear:
 ## replaceLine
 ##  Replaces the latest line in the queue
 
+# Function: VGA_INIT
+# Initializes VGA queue memory
+
+VGA_INIT:
+  movia r14, TEMP_STORE
+  movi r15, 1
+  stw r15, (r14)
+  ret
+
 # Function: replaceLine
 # r4 => Pointer to string 
 
@@ -164,15 +173,6 @@ replaceLine:
                             # (first argument already stored in r4)
   call updateLine
   ret 
-
-# Function: VGA_INIT
-# Initializes VGA queue memory
-
-VGA_INIT:
-  movia r14, TEMP_STORE
-  movi r15, 1
-  stw r15, (r14)
-  ret
  
 # Function: queueLen
 # r2 <= Length of queue 
