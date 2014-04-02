@@ -44,9 +44,9 @@ updateLine:
   stw  r19, 4(sp)
   stw  r20, (sp)
 
-  mov r16, r5               # Row to print to
-  mov r17, r0               # Column to print to
-  mov r18, r4               # Mutable pointer to string  
+  mov r16, r5                 # Row to print to
+  mov r17, r0                 # Column to print to
+  mov r18, r4                 # Mutable pointer to string  
 
 string_iter:                   # Iterate through string, print each character
   ldb  r19, (r18)              # Load character into register
@@ -200,9 +200,9 @@ newLine:
 
 shiftLines:
   movi r8, CHAR_BUFFER 
-  movi r9, 128               # Starting point of iterator (destination location)
+  movi r9, 128              # Starting point of iterator (destination location)
   add r9, r9, r8
-  movi r10, 256              # Starting point of iterator (source location)
+  movi r10, 256             # Starting point of iterator (source location)
   add r10, r10, r8
   movi r11, 128
   muli r11, r11, 59         # Limit (for destination pointer)
@@ -216,7 +216,7 @@ copy_iter:
   br copy_iter
 done_cpy:
   movi r2, 59
-  br appendLine
+  br appendLine             # Append line after line 42
   
 appendLine:
   mov r14, r4               # Move the pointer to the string so it doesn't get clobbered
@@ -231,9 +231,9 @@ appendLine:
   ldw ra, (sp)              # Restore return address 
   addi sp, sp, 4
   
-  movi r14, TEMP_STORE
-  addi r2, r2, 1
-  stw r2, (r14)
+  movi r14, TEMP_STORE      # Update line number in main memory 
+  addi r2, r2, 1           
+  stw r2, (r14)           
   
   ret
 
