@@ -33,14 +33,19 @@ main:
 # Ensuring SD Card / memory is inserted
 
 checkSDExists:                         # Check to see whether bootloader should be from SRAM or SD
+  movia r18, 50000000                 # One second (50M clock cycles)
+  muli r18, r18, 10                   # Ten seconds
+  movi r19, 0                         # Iterator
   movia r16, SD_CONTROL_ADDRESS
+check_SD_loop:
+  bgt r19, r18, checkSRAM             # After timeout, check the SRAM 
   ldw r17, 564(r16)                   # Load Auxiliary Status Register
   andi r17, r17, 0b10                 # Mask to see if SD Card present
-  beq r17, r0, checkSRAM              # If it's not present, check the SRAM             
-  bne r17, r0, checkSDReady
+  bne r17, r0, checkSDReady           # If the SD card is inserted, check to see if it's ready.
+  addi r19, r19, 1
+  br check_SD_loop
 
 checkSRAM:
-
 loadBoot:
   movia r4, SRAM_ADDRESS              # Disk Address
   mov   r5, zero                      # Destination address (on disk)
@@ -72,7 +77,7 @@ checkSignature:
     
 	movia r18, 0xaa55
 	andi r18, r18, 0xFFFF
-  cmpeq r17, r16, r18		            # Check if boot signature is AA55
+  cmpeq r17, r16, r18		              # Check if boot signature is AA55
   beq r17, r0, no_boot_sector
   bne r17, r0, success
     
