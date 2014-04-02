@@ -11,30 +11,32 @@ str:
   .asciz "Good morning, Dr. Chandra. This is Hal. I am ready for my first lesson."
 str2:
   .asciz "Just what do you think you're doing, Dave?"
+unichar:
+  .asciz "A"
   
 .section .text
 
 main:
+  call VGA_INIT
+  
   movi sp, 0x3000
   call clearScreen
-  movi r4, 0x41
-  movi r5, 0
-  movi r6, 1
-  call printChar
   
-  movi r4, 2
+  movi r4, 1
   call resetLine
   
   movi r16, 10		# Repeat until...
-  movi r17, 0		# Iterator
+  movi r17, 0		  # Iterator
   
 print_loop:
   bgt r17, r16, end
   
-  movia r4, str
-  call newLine
+  movia r19, unichar
+  ldb r18, (r19)
+  addi r18, r18, 1
+  stw r18, (r19)
   
-  movia r4, str2
+  movia r4, unichar
   call newLine
   
   addi r17, r17, 1
