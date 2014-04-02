@@ -155,6 +155,13 @@ endclear:
 # Initializes VGA queue memory
 
 VGA_INIT:
+
+  subi sp, sp, 4            # Clear screen first
+  stw ra, (sp)
+  call clearScreen
+  ldw ra, (sp)
+  addi sp, sp, 4
+  
   movia r14, TEMP_STORE
   movi r15, 0
   stw r15, (r14)
@@ -173,12 +180,21 @@ replaceLine:
   ble r2, r14, replace_final    # If the line number is less than or equal to 59, replace that line
   movi r2, 58                   # Replace last line
 
-replace_final:  
+replace_final:
+
+  subi sp, sp, 4
+  stw ra, (sp)
+  call resetLine
+  ldw ra, (sp)  
+  addi sp, sp, 4
+  
   mov r5, r2                # Set second arg to line number
                             # (first argument already stored in r4)
+  subi sp, sp, 4
   stw ra, (sp)
   call updateLine
   ldw ra, (sp)  
+  addi sp, sp, 4
   ret 
  
 # Function: queueLen
@@ -246,3 +262,5 @@ appendLine:
   stw r2, (r14)
   
   ret
+
+
