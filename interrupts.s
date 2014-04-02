@@ -37,28 +37,11 @@ call_ps2:
 	
 	##call the keyboard control function
 	call ps2controller
-	
-########################	
-     #must remove
-####################
-    movia r8,buffer_start    ##initialise the first character to null
-	movia et,buffer_control
-	ldw et,(et)
-	subi et,et,1
-	
-	add r8,r8,et
-	ldb r10,(r8)
+  movia r4,buffer_read
+  call replaceLine  
+  
 
 	
-	movia r8,buffer_control    ##initialise the first character to null
-	ldw r17,(r8)
-	add r19,r0,r11
-	andi r19,r19,0xff
-	xor r11,r19,r11
-	
-	or r11,r11,r17
-	
-
 notload_test:	
 #######################
 	
@@ -99,16 +82,15 @@ getout2:
 .equ buffer_start, 0x00120100  ##actual start adrees of the buffer
 .equ buffer_show_size, 60
 
+.global ps2_initialize
 
-.global main
-
-
-main:
-
+ps2_initialize:
 
 GET_INTERRUPTS:
-    movi sp,0x3000     ##initialiseing stack pointer
  	
+  addi sp,sp,-4
+  stw ra, (sp)
+  
 	movia r8,PS2       ##enabling interutps in ps2
 	movi r9,1
 	stwio r9,4(r8)
@@ -136,34 +118,12 @@ GET_INTERRUPTS:
 	stw r8,(r9)
 
 	
-	
-	
 	####initialse buffer controls
 	
-	
-	
-	
-	
-	mov r8,r0              ##set dummy virables r8 , r9
-	mov r9,r0
-	
-	movi r10,0x00
-	movi r11,0x00
-	
-	movia r16,ADDR_GREENLEDS
-	movia r17,ADDR_REDLEDS
-	
-loop_main:
+ 
+  stw ra,(sp)
+  addi sp,sp,4
 
+	
+  ret
 
-##r11,r10
-    stwio r10,(r16)
-	stwio r15,(r17)
-	
-#stwio r8,(r16)
-#stwio r9,(r17)
-	
-	
-	br loop_main
-	
-.end
