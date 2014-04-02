@@ -12,7 +12,7 @@ str:
 str2:
   .asciz "Just what do you think you're doing, Dave?"
 unichar:
-  .asciz "A"
+  .asciz "!"
   
 .section .text
 
@@ -25,22 +25,24 @@ main:
   movi r4, 1
   call resetLine
   
-  movi r16, 10		# Repeat until...
+  movi r16, 100		# Repeat until...
   movi r17, 0		  # Iterator
   
 print_loop:
   bgt r17, r16, end
   
+  movia r4, unichar
+  call newLine
+  
   movia r19, unichar
   ldb r18, (r19)
   addi r18, r18, 1
-  stw r18, (r19)
-  
-  movia r4, unichar
-  call newLine
+  stb r18, (r19)
   
   addi r17, r17, 1
   br print_loop
   
 end:
+  movia r4, str2
+  call replaceLine
   br end
