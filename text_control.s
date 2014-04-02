@@ -171,7 +171,9 @@ replaceLine:
   
   mov r5, r2                # Set second arg to line number
                             # (first argument already stored in r4)
+  stw ra, (sp)
   call updateLine
+  ldw ra, (sp)  
   ret 
  
 # Function: queueLen
