@@ -169,6 +169,10 @@ replaceLine:
   call queueLen             # Check length of queue 
   ldw ra, (sp)  
   
+  ble r2, r14, replace_final    # If the line number is less than or equal to 59, replace that line
+  mov r2, 60                    # Replace last line
+
+replace_final:  
   mov r5, r2                # Set second arg to line number
                             # (first argument already stored in r4)
   stw ra, (sp)
