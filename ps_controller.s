@@ -73,6 +73,9 @@ ascii_period:
 ascii_slash:
 .byte 0x4A
 
+str:
+  .asciz "Hello world"
+
 ##the addres of the ps2controller
 
 .text
@@ -83,6 +86,10 @@ ascii_slash:
 .equ SHIFT, 0x12      ##this is the code for shift
 .equ BACKSPACE, 0x66      ##this is the code for shift
 .equ ENTER, 0x54      ##this is the code for shift
+
+
+.equ ADDR_REDLEDS, 0x10000000	
+.equ ADDR_GREENLEDS, 0x10000010
 
 ##buffer register
 .equ shift_press, 0x00120000      ##boolean that show if shift is been pressed, 1 if yes, 0 of no
@@ -110,14 +117,15 @@ ascii_slash:
 ps2controller:
 
   ##saving register to stack
-  addi sp,sp,-28
+  addi sp,sp,-32
   stw r16,0(sp)
   stw r17,4(sp)
   stw r18,8(sp)
   stw r19,12(sp)
   stw r20,16(sp)
   stw r21,20(sp)
-  stw ra, 24(sp)  
+  stw r4,24(sp)
+  stw ra, 28(sp)  
  
  ##loading the first character from the ps2 buffer
 
@@ -262,7 +270,11 @@ shift_up:                   ##change shift_press to ZERO because shift was relea
   br load_again 
  
 enter_pressed:
-  	movia r16,shift_press      ##initialise shift to  unpress
+  movia r16,shift_press      ##initialise shift to  unpress
+  
+  movia r4,buffer_read
+  call replaceLine 
+  
 	stw r0,(r16)
 	
 	movia r16,buffer_f0_press      ##initialise shift to  unpress
@@ -276,7 +288,10 @@ enter_pressed:
 	
 	movia r17,buffer_read     ##initialise the read character to the start character
 	stw r16,(r17)
-	
+  
+  movia r4,str
+  call newLine 
+ 
   br finish
   
 
@@ -361,8 +376,9 @@ finish:
   ldw r19,12(sp)
   ldw r20,16(sp)
   ldw r21,20(sp)
-  ldw ra, 24(sp)  
-  addi sp,sp,28
+  ldw r4,28(sp)
+  ldw ra, 28(sp)  
+  addi sp,sp,32
   
   ret
 
