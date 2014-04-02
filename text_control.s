@@ -9,6 +9,7 @@
 .global updateLine
 .global clearScreen
 .global resetLine
+.global replaceLine
 .global newLine
 .global VGA_INIT
 
@@ -44,9 +45,9 @@ updateLine:
   stw  r19, 4(sp)
   stw  r20, (sp)
 
-  mov r16, r5                 # Row to print to
-  mov r17, r0                 # Column to print to
-  mov r18, r4                 # Mutable pointer to string  
+  mov r16, r5                  # Row to print to
+  mov r17, r0                  # Column to print to
+  mov r18, r4                  # Mutable pointer to string  
 
 string_iter:                   # Iterate through string, print each character
   ldb  r19, (r18)              # Load character into register
@@ -155,7 +156,7 @@ endclear:
 
 VGA_INIT:
   movia r14, TEMP_STORE
-  movi r15, 1
+  movi r15, 0
   stw r15, (r14)
   ret
 
@@ -170,7 +171,7 @@ replaceLine:
   ldw ra, (sp)  
   
   ble r2, r14, replace_final    # If the line number is less than or equal to 59, replace that line
-  mov r2, 60                    # Replace last line
+  movi r2, 58                   # Replace last line
 
 replace_final:  
   mov r5, r2                # Set second arg to line number
@@ -191,36 +192,41 @@ queueLen:
 # newLine
 # Inserts a new line into the VGA queue, scrolling up if necessary.  
 # r4 => Pointer to string to print
-
 newLine:
   movi r14, 59              # Maximum row number
   
+  subi sp, sp, 8
   stw ra, (sp)
+  stw r14, 4(sp)
+  
   call queueLen             # Check length of queue 
+  
+  ldw r14, 4(sp)
   ldw ra, (sp)  
+  addi sp, sp, 4
   
   bge r2, r14, shiftLines   # If screen is full, scroll instead of appending
   blt r2, r14, appendLine   # Otherwise, just append the line to the end
 
 shiftLines:
   movi r8, CHAR_BUFFER 
-  movi r9, 128              # Starting point of iterator (destination location)
+  movi r9, 0                 # Starting point of iterator (destination location)
   add r9, r9, r8
-  movi r10, 256             # Starting point of iterator (source location)
+  movi r10, 128              # Starting point of iterator (source location)
   add r10, r10, r8
   movi r11, 128
-  muli r11, r11, 59         # Limit (for destination pointer)
+  muli r11, r11, 59          # Limit (for destination pointer)
   add r11, r11, r8
 copy_iter:
-  bgt r10, r11, done_cpy    # Branch when reach limit
-  ldb r12, (r10)            # Load byte from source location
-  stb r12, (r9)             # Store byte in destination 
+  bgt r10, r11, done_cpy     # Branch when reach limit
+  ldb r12, (r10)             # Load byte from source location
+  stb r12, (r9)              # Store byte in destination 
   addi r10, r10, 1
   addi r9, r9, 1
   br copy_iter
 done_cpy:
-  movi r2, 59
-  br appendLine             # Append line after line 42
+  movi r2, 58
+  br appendLine
   
 appendLine:
   mov r14, r4               # Move the pointer to the string so it doesn't get clobbered
@@ -235,9 +241,8 @@ appendLine:
   ldw ra, (sp)              # Restore return address 
   addi sp, sp, 4
   
-  movi r14, TEMP_STORE      # Update line number in main memory 
-  addi r2, r2, 1           
-  stw r2, (r14)           
+  movi r14, TEMP_STORE
+  addi r2, r2, 1
+  stw r2, (r14)
   
   ret
-
