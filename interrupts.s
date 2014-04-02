@@ -4,7 +4,7 @@
 .section .exceptions, "ax"
 
 myISR:
-##    addi r10,r10,0xF0
+
    
    
 ##   movia et, ADDR_GREENLEDS
@@ -42,8 +42,13 @@ call_ps2:
      #must remove
 ####################
     movia r8,buffer_start    ##initialise the first character to null
-	ldw r10,(r8)
-	addi r10,r10,1
+	movia et,buffer_control
+	ldw et,(et)
+	subi et,et,1
+	
+	add r8,r8,et
+	ldb r10,(r8)
+
 	
 	movia r8,buffer_control    ##initialise the first character to null
 	ldw r17,(r8)
@@ -61,6 +66,8 @@ notload_test:
 	br GOTOEND
 	
 GOTOEND:
+ 
+   
  
 	ldw r16,0(sp)
 	ldw r17,4(sp)
@@ -88,6 +95,7 @@ getout2:
 .equ shift_press, 0x00120000      ##boolean that show if shift is been pressed, 1 if yes, 0 of no
 .equ buffer_control, 0x00120010   ##size of the string buffer 
 .equ buffer_read, 0x00120020   ##pointer address that must start to read
+.equ buffer_f0_press, 0x00120030   ##pointer address that must start to read
 .equ buffer_start, 0x00120100  ##actual start adrees of the buffer
 .equ buffer_show_size, 60
 
@@ -115,6 +123,9 @@ GET_INTERRUPTS:
 	movia r8,shift_press      ##initialise shift to  unpress
 	stw r0,(r8)
 	
+	movia r8,buffer_f0_press      ##initialise shift to  unpress
+	stw r0,(r8)
+	
 	movia r8,buffer_control  ##initialise the size to 0
 	stw r0,(r8)
 	
@@ -123,7 +134,7 @@ GET_INTERRUPTS:
 	
 	movia r9,buffer_read     ##initialise the read character to the start character
 	stw r8,(r9)
-	
+
 	
 	
 	
@@ -136,8 +147,8 @@ GET_INTERRUPTS:
 	mov r8,r0              ##set dummy virables r8 , r9
 	mov r9,r0
 	
-	movi r10,0x0F
-	movi r11,0x01
+	movi r10,0x00
+	movi r11,0x00
 	
 	movia r16,ADDR_GREENLEDS
 	movia r17,ADDR_REDLEDS
@@ -146,7 +157,7 @@ loop_main:
 
 
 ##r11,r10
-    stwio r14,(r16)
+    stwio r10,(r16)
 	stwio r15,(r17)
 	
 #stwio r8,(r16)
