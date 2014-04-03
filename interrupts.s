@@ -1,5 +1,5 @@
 # Include nios_macros.s to workaround a bug in the movia pseudo-instruction.
-.include "nios_macros.s"
+
 
 .section .exceptions, "ax"
 
@@ -35,10 +35,12 @@ call_ps2:
 	
     	
 	
-	##call the keyboard control function
-	call ps2controller
-  movia r4,buffer_read
-  call replaceLine  
+    ##call the keyboard control function
+    call ps2controller
+	
+    movia r4,buffer_read
+    ldw   r4,(r4)
+    call replaceLine  
   
 
 	
@@ -67,9 +69,13 @@ getout2:
 	
   subi ea,ea,4
   eret
-
   
-.section .text
+ .data
+str_test:
+  .asciz "Hello world"
+
+ .text
+
 .equ PS2, 0x10000100 
 .equ ADDR_REDLEDS, 0x10000000	
 .equ ADDR_GREENLEDS, 0x10000010
