@@ -35,7 +35,6 @@ initialize_bios:
   movia sp, 0x011000
   
   call VGA_INIT
-  call ps2_initialize
   
   movia r4, str_boot
   call newLine
@@ -120,6 +119,7 @@ success:
   movia r18, LED_GREEN_ADDRESS
   stwio r17, (r18)
 
+  call ps2_initialize
+  
   movia r17, bootloader_space
   jmp r17
-
