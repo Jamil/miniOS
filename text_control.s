@@ -212,7 +212,7 @@ queueLen:
 newLine:
   movi r14, 59              # Maximum row number
   
-  subi sp, sp, 8
+  subi sp, sp, 4
   stw ra, (sp)
   stw r14, 4(sp)
   
