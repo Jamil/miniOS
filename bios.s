@@ -26,6 +26,7 @@ str_loadsucc:     .asciz ">> MBR Found. Exiting BIOS and passing control to boot
 
 .global main
 
+
 main:
 
 # STEP 1
@@ -35,6 +36,7 @@ initialize_bios:
   movia sp, 0x011000
   
   call VGA_INIT
+  call clearScreen
   call ps2_initialize
   
   movia r4, str_boot
