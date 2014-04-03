@@ -212,7 +212,7 @@ queueLen:
 newLine:
   movi r14, 59              # Maximum row number
   
-  subi sp, sp, 4
+  subi sp, sp, 8
   stw ra, (sp)
   stw r14, 4(sp)
   
@@ -220,7 +220,7 @@ newLine:
   
   ldw r14, 4(sp)
   ldw ra, (sp)  
-  addi sp, sp, 4
+  addi sp, sp, 8
   
   bge r2, r14, shiftLines   # If screen is full, scroll instead of appending
   blt r2, r14, appendLine   # Otherwise, just append the line to the end
