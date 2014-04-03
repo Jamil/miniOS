@@ -107,6 +107,7 @@ no_boot_sector:
   movi r17, 0b0100                    # Set debug bit on LEDs
   movia r18, LED_GREEN_ADDRESS         
   stwio r17, (r18)
+  call ps2_initialize
 
 boot_fail:
   br boot_fail
