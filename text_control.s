@@ -171,6 +171,7 @@ VGA_INIT:
 # r4 => Pointer to string 
 
 replaceLine:
+  mov r16, r4
   movi r14, 59              # Maximum row number
   
   stw ra, (sp)
@@ -181,13 +182,15 @@ replaceLine:
   movi r2, 58                   # Replace last line
 
 replace_final:
-
+  
+  mov r4, r2
   subi sp, sp, 4
   stw ra, (sp)
   call resetLine
   ldw ra, (sp)  
   addi sp, sp, 4
   
+  mov r4, r16
   mov r5, r2                # Set second arg to line number
                             # (first argument already stored in r4)
   subi sp, sp, 4
@@ -262,5 +265,6 @@ appendLine:
   stw r2, (r14)
   
   ret
+
 
 
