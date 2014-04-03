@@ -270,30 +270,37 @@ shift_up:                   ##change shift_press to ZERO because shift was relea
   br load_again 
  
 enter_pressed:
-  movia r16,shift_press      ##initialise shift to  unpress
+  
   
   
   
   movia r4,buffer_read
   ldw   r4,(r4)
   call replaceLine 
-  stw r0,(r16)
   
-  movia r16,buffer_f0_press      ##initialise shift to  unpress
-  stw r0,(r16)
-	
-	movia r16,buffer_control  ##initialise the size to 0
-	stw r0,(r16)
-
-	movia r16,buffer_start    ##initialise the first character to null
-	stw r0,(r16)
-
-	movia r17,buffer_read     ##initialise the read character to the start character
-	stw r16,(r17)
   
   movia r4,buffer_read
   ldw   r4,(r4)
   call parser 
+  
+  movia r16,shift_press      ##initialise shift to  unpress
+  stw r0,(r16)
+  
+  
+  movia r16,buffer_f0_press      ##initialise Enter to  unpress
+  stw r0,(r16)
+	
+  movia r16,buffer_control  ##initialise the size to 0
+  stw r0,(r16)
+
+  movia r16,buffer_start    ##initialise the first character to null
+  stw r0,(r16)
+
+  movia r17,buffer_read     ##initialise the read character to the start character
+  stw r16,(r17)
+  
+ # movia r4, buffer_start
+ # call newLine
  
   br finish
   
