@@ -63,7 +63,7 @@ finish_load:
 #   r6: Target address (in Main Memory)
 
 storeSDBlock:
-  movi r9, r0
+  mov r9, r0
   movia r10, BLOCK_SIZE
 
 store_SD_bytes:
