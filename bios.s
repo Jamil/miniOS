@@ -1,11 +1,8 @@
 .section .data
 
-.equ SRAM_ADDRESS, 0x0807FFFF
+.equ SRAM_ADDRESS, 0x08050000
 .equ LED_GREEN_ADDRESS, 0x10000010
 .equ SD_CONTROL_ADDRESS, 0x00800000
-
-bootloader_location: 
-.skip 512
 
 str_boot:         .asciz ">> Starting boot process."
 str_sd:           .asciz ">> Looking for SD Card..."
@@ -14,6 +11,9 @@ str_sdfound:      .asciz ">> Found SD Card."
 str_bootsearch:   .asciz ">> Checking Master Boot Record (MBR) for signature 0xaa55."
 str_bootfail:     .asciz ">> No boot record found on disk. Aborting."
 str_loadsucc:     .asciz ">> MBR Found. Exiting BIOS and passing control to bootloader."
+
+bootloader_space:   
+  .skip 512   
 
 .section .text
 
@@ -26,7 +26,6 @@ str_loadsucc:     .asciz ">> MBR Found. Exiting BIOS and passing control to boot
 
 .global main
 
-
 main:
 
 # STEP 1
@@ -36,7 +35,6 @@ initialize_bios:
   movia sp, 0x011000
   
   call VGA_INIT
-  call clearScreen
   call ps2_initialize
   
   movia r4, str_boot
@@ -46,11 +44,11 @@ initialize_bios:
   call newLine
   
 checkSDExists:                        # Check to see whether bootloader should be from SRAM or SD
-  movia r18, 10000000                 # 5 M clock cycles
+  movia r18, 50000000                 # .5 M clock cycles
   movi r19, 0                         # Iterator
   movia r16, SD_CONTROL_ADDRESS
 check_SD_loop:
-  bgt r19, r18, checkSRAM             # After timeout, check the SRAM 
+# bgt r19, r18, checkSRAM             # After timeout, check the SRAM 
   ldw r17, 564(r16)                   # Load Auxiliary Status Register
   andi r17, r17, 0x2                  # Mask to see if SD Card present
   bne r17, r0, checkSDReady           # If the SD card is inserted, check to see if it's ready.
@@ -64,7 +62,7 @@ loadBoot:
   
   movia r4, SRAM_ADDRESS              # Disk Address
   mov   r5, zero                      # Destination address (on disk)
-  movia r6, bootloader_location       # Target address (in Main Memory)
+  movia r6, bootloader_space          # Target address (in Main Memory)
   call loadSRAMBlock
   br checkSignature
 
@@ -83,7 +81,7 @@ checkSDReady:
 
   movia r4, SD_CONTROL_ADDRESS        # Disk Address
   mov   r5, zero                      # Destination address (on SD Card)
-  movia r6, bootloader_location       # Target address (in Main Memory)
+  movia r6, bootloader_space          # Target address (in Main Memory)
   call loadSDBlock
   br checkSignature
 
@@ -94,10 +92,10 @@ checkSignature:
   movia r4, str_bootsearch
   call newLine
   
-  movia r17, bootloader_location
-  ldhu r16, 510(r17)                  # Load MBR Signature (bytes 510 and 511)
+  movia r17, bootloader_space
+  ldw   r16, 508(r17)                  # Load MBR Signature (bytes 510 and 511)
     
-  movia r18, 0xaa55
+  movia r18, 0x55aa
   andi r18, r18, 0xFFFF
   cmpeq r17, r16, r18		              # Check if boot signature is AA55
   beq r17, r0, no_boot_sector
@@ -122,6 +120,6 @@ success:
   movia r18, LED_GREEN_ADDRESS
   stwio r17, (r18)
 
-  movia r17, bootloader_location
+  movia r17, bootloader_space
   jmp r17
-   
+

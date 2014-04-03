@@ -1,6 +1,7 @@
 ### Text Control
 ##  Print string or line to screen
 
+.equ VGA_END, 0x08040000
 .equ VGA_BUFFER, 0x08000000
 .equ CHAR_BUFFER, 0x09000000
 .equ TEMP_STORE, 0x00110000
@@ -123,18 +124,18 @@ endreset:
   ret
   
 # Function: clearScreen
-# Sets the entire row to black
+# Sets the entire screen to black
 
 clearScreen:
   movia r14, VGA_BUFFER
-  movia r15, CHAR_BUFFER
+  movia r15, VGA_END
   movi r6, 0              # Iterator
 clearLoop:
-  bgt r11, r15, endclear
+  bge r11, r15, endclear
   add r11, r6, r14        # r11 is destination pixel
   movi r12, 0x00          # Set to black
   sthio r12, (r11)
-  addi r6, r6, 2          # Increment by 4
+  addi r6, r6, 2          # Increment by 2
   br clearLoop 
 endclear:
   ret 
@@ -171,7 +172,6 @@ VGA_INIT:
 # r4 => Pointer to string 
 
 replaceLine:
-  mov r16, r4
   movi r14, 59              # Maximum row number
   
   stw ra, (sp)
@@ -182,15 +182,13 @@ replaceLine:
   movi r2, 58                   # Replace last line
 
 replace_final:
-  
-  mov r4, r2
+
   subi sp, sp, 4
   stw ra, (sp)
   call resetLine
   ldw ra, (sp)  
   addi sp, sp, 4
   
-  mov r4, r16
   mov r5, r2                # Set second arg to line number
                             # (first argument already stored in r4)
   subi sp, sp, 4
@@ -265,6 +263,5 @@ appendLine:
   stw r2, (r14)
   
   ret
-
 
 
