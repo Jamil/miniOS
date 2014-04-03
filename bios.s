@@ -43,11 +43,11 @@ initialize_bios:
   call newLine
   
 checkSDExists:                        # Check to see whether bootloader should be from SRAM or SD
-  movia r18, 50000000                 # .5 M clock cycles
+  movia r18, 500000                   # .5 M clock cycles
   movi r19, 0                         # Iterator
   movia r16, SD_CONTROL_ADDRESS
 check_SD_loop:
-# bgt r19, r18, checkSRAM             # After timeout, check the SRAM 
+  bgt r19, r18, checkSRAM             # After timeout, check the SRAM 
   ldw r17, 564(r16)                   # Load Auxiliary Status Register
   andi r17, r17, 0x2                  # Mask to see if SD Card present
   bne r17, r0, checkSDReady           # If the SD card is inserted, check to see if it's ready.
