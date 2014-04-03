@@ -183,9 +183,11 @@ replaceLine:
 
 replace_final:
 
-  subi sp, sp, 4
+  subi sp, sp, 8
   stw ra, (sp)
-  call resetLine
+  stw r4, 4(sp)
+  call resetLine 
+  ldw r4, 4(sp)
   ldw ra, (sp)  
   addi sp, sp, 4
   
