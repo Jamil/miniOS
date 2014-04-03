@@ -1,5 +1,5 @@
 # Include nios_macros.s to workaround a bug in the movia pseudo-instruction.
-.include "nios_macros.s"
+
 
 
   
@@ -21,13 +21,6 @@ ps2_Alphabte:
 number:
 .byte 0x45,0x16,0x1E,0x26,0x25,0x2E,0x36,0x3D,0x3E,0x46
 
-ps2_arrowkeys:
-.byte 0x75,0x6B,0x72,0x74
-#UP_ARROW=75
-#left ARROW=6B
-#down ARROW=72
-#rigth ARROW=74
-
 
 #special characters
 ps2_enter:
@@ -42,6 +35,14 @@ ps2_period:
 .byte 0x49		
 ps2_slash:
 .byte 0x4A
+
+
+ps2_arrowkeys:
+.byte 0x75,0x6B,0x72,0x74
+#UP_ARROW=75
+#left ARROW=6B
+#down ARROW=72
+#rigth ARROW=74
 	
 ##this are the definition of the ascii characters	
 ascii_char:
@@ -52,6 +53,21 @@ ascii_lower:
 ascii_number:
 .byte 0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39
 
+
+#special characters
+ascii_enter:
+.byte 0x5A
+ascii_space:
+.byte 0x20
+ascii_backspace:
+.byte 0x66
+ascii_comma:
+.byte 0x2A
+ascii_period:
+.byte 0x2E		
+ascii_slash:
+.byte 0x2F
+
 ascii_arrowkeys:
 .byte 0x81,0x82,0x83,0x84
 #UP_ARROW=81
@@ -59,22 +75,6 @@ ascii_arrowkeys:
 #down ARROW=83
 #rigth ARROW=84
 
-#special characters
-ascii_enter:
-.byte 0x5A
-ascii_space:
-.byte 0x29
-ascii_backspace:
-.byte 0x66
-ascii_comma:
-.byte 0x41
-ascii_period:
-.byte 0x49		
-ascii_slash:
-.byte 0x4A
-
-str:
-  .asciz "Hello world"
 
 ##the addres of the ps2controller
 
@@ -85,7 +85,7 @@ str:
 .equ FILL_CHAR, 0xE0  ##this code is used before the arrows keys ex, E0,XX or if is released EO,FO,XX
 .equ SHIFT, 0x12      ##this is the code for shift
 .equ BACKSPACE, 0x66      ##this is the code for shift
-.equ ENTER, 0x54      ##this is the code for shift
+.equ ENTER, 0x5a      ##this is the code for shift
 
 
 .equ ADDR_REDLEDS, 0x10000000	
@@ -272,25 +272,28 @@ shift_up:                   ##change shift_press to ZERO because shift was relea
 enter_pressed:
   movia r16,shift_press      ##initialise shift to  unpress
   
-  movia r4,buffer_read
-  call replaceLine 
   
-	stw r0,(r16)
-	
-	movia r16,buffer_f0_press      ##initialise shift to  unpress
-	stw r0,(r16)
+  
+  movia r4,buffer_read
+  ldw   r4,(r4)
+  call replaceLine 
+  stw r0,(r16)
+  
+  movia r16,buffer_f0_press      ##initialise shift to  unpress
+  stw r0,(r16)
 	
 	movia r16,buffer_control  ##initialise the size to 0
 	stw r0,(r16)
-	
+
 	movia r16,buffer_start    ##initialise the first character to null
 	stw r0,(r16)
-	
+
 	movia r17,buffer_read     ##initialise the read character to the start character
 	stw r16,(r17)
   
-  movia r4,str
-  call newLine 
+  movia r4,buffer_read
+  ldw   r4,(r4)
+  call parser 
  
   br finish
   
