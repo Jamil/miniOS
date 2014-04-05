@@ -5,11 +5,13 @@
 |   Exception Vector                         | 0x00000020     |                 |
 |   BIOS                                     | 0x00001000     |                 |
 |   Bootloader                               | 0x00007C00     |                 |
+|   Operating System Base                    | 0x00010000     | 0x000FFFFF      |
 |   Free                                     | 0x00100000     |                 |
 |   - I/O Temporary                          | 0x00110000     | 0x001FFFFF      |
 |   -- VGA Temporary                         | 0x00110000     | 0x0011FFFF      |
-|   --keyboard Temporary                     | 0x00120000     | 0x0012FFFF      |
-
+|   -- Keyboard Temporary                    | 0x00120000     | 0x0012FFFF      |
+|   Active Program                           | 0x00130000     | 0x001FFFFF      |
+|   Stack Pointer                            | 0x00200000     |                 |
 
 # Memory Map
 
