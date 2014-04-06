@@ -190,7 +190,7 @@ replace_final:
   call resetLine 
   ldw r4, 4(sp)
   ldw ra, (sp)  
-  addi sp, sp, 4
+  addi sp, sp, 8
   
   mov r5, r2                # Set second arg to line number
                             # (first argument already stored in r4)
