@@ -186,6 +186,7 @@ replace_final:
   subi sp, sp, 8
   stw ra, (sp)
   stw r4, 4(sp)
+  mov r4, r2
   call resetLine 
   ldw r4, 4(sp)
   ldw ra, (sp)  
