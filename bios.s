@@ -32,7 +32,7 @@ main:
 # Ensuring SD Card / memory is inserted
 
 initialize_bios:
-  movia sp, 0x011000
+  movia sp, 0x00200000
   
   call VGA_INIT
   
