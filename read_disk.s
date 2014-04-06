@@ -46,9 +46,11 @@ loadSRAMBlock:
 load_bytes:
   bge r9, r10, finish_load    # while (iterator < BLOCK_SIZE)
   add r11, r8, r9             # target address
-  ldbio r12, (r11)            # load from disk        
+  ldwio r12, (r11)            # load from disk        
   add r11, r6, r9             # destination address
-  stb r12, (r11)              # store to Main Memory
+  stw r12, (r11)              # store to Main Memory
+  addi r9, r9, 4
+  br load_bytes
     
 finish_load:
   ret
@@ -63,7 +65,7 @@ finish_load:
 #   r6: Target address (in Main Memory)
 
 storeSDBlock:
-  mov r9, r0
+  movi r9, 0
   movia r10, BLOCK_SIZE
 
 store_SD_bytes:
