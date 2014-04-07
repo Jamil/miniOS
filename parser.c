@@ -9,7 +9,7 @@ void cd_function(char* arg);
 void execute_function(char* arg);
 
 
-int foobar asm("newLine") = 0x02000;
+int newLine asm("newLine") = 0x02000;
 
 
 void parser(char* command){
