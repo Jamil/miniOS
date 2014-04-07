@@ -73,10 +73,11 @@ checkSDReady:
   movi r19, 0b010
   stwio r19, (r18)
 
-  ldw r18, 568(r16)                   # Check Response R1 Register
-  movia r19, 0x1000000
-  and r18, r18, r19                   # Check to see if SD Card is initialized
-  bne r18, r0, checkSDReady
+## I don't think we need to check Response R1 until we issue a load or store
+# ldw r18, 568(r16)                   # Check Response R1 Register
+# movia r19, 0x01000000
+# and r18, r18, r19                   # Check to see if SD Card is initialized
+# bne r18, r0, checkSDReady
 
   movia r4, SD_CONTROL_ADDRESS        # Disk Address
   mov   r5, zero                      # Destination address (on SD Card)
