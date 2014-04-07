@@ -45,3 +45,15 @@
 | **External_Clocks** | 0x10002030     | 
 | **Altera_UP_SD_Card_Avalon_Interface_** | 0x00800000     | 
 | **Altera_UP_Flash_Memory_IP_Core_Avalon**  | 0x01000000     | 
+
+
+# In SD_card
+
+| Component                                  | Start Address  | End Address     |
+| ------------------------------------------ | :------------: | :-------------: |
+|   Boot loader                              | 0x00000000     | 0x00000511      |
+|   kernel(parser.c)                         | 0x00000512     |                 |
+
+
+# Memory Map
+
