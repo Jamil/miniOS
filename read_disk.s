@@ -71,19 +71,23 @@ storeSDBlock:
 store_SD_bytes:
   bge r9, r10, prepare_for_store    
   add r11, r6, r9                   # address in main memory (to move)
-  ldb r12, (r11)                    # load from main memory
-  stbio r12, (r4)                   # store to SD disk buffer
+  ldw r12, (r11)                    # load from main memory
+  add r11, r4, r9                   # address in disk buffer
+  stwio r12, (r11)                  # store to SD disk buffer
+  addi r9, r9, 4
+  br store_SD_bytes
 
 prepare_for_store:                  # Set control bits to store to SD Card
   stwio r5, 556(r4)                 # Set command register to target address
   movi r9, 0x18                     # Tell command register to write bytes to SD Card
   sthio r9, 560(r4)
 
-poll_SD_until_stored:
-  ldwio r9, 560(r4)
-  andi r9, r9, 0b10
-  bne r9, r0, poll_SD_until_stored
-  br finish_store
+## We don't need this  
+# poll_SD_until_stored:
+# ldwio r9, 560(r4)
+# andi r9, r9, 0b10
+# bne r9, r0, poll_SD_until_stored
+# br finish_store
 
 storeSRAMBlock:
   mov r8, r4          
@@ -100,3 +104,4 @@ store_bytes:
     
 finish_store:
   ret
+    
