@@ -120,8 +120,6 @@ success:
   movi r17, 0b01                      # Set debug bit on LEDs
   movia r18, LED_GREEN_ADDRESS
   stwio r17, (r18)
-
-  call ps2_initialize
   
   movia r17, bootloader_space
   jmp r17
