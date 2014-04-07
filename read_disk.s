@@ -24,11 +24,11 @@ loadSDBlock:
   
 load_poll_SD:
   ldwio r9, 564(r4)       # Read Auxiliary Status Register
-  andi r9, r9, 0b100      # Check if bit 3 (status = valid) is on
+  andi r9, r9, 0b1000     # Check if bit 3 (status = valid) is on
   beq r9, r0, load_poll_SD 
-
+  
 prepare_for_load:
-  mov r8, r0
+  mov r8, r4
   mov r9, r0
   movi r10, BLOCK_SIZE
   br load_bytes
@@ -100,4 +100,3 @@ store_bytes:
     
 finish_store:
   ret
-    
