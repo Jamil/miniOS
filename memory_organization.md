@@ -7,7 +7,7 @@
 |   Bootloader                               | 0x00005000     |                 |
 |   Operating System Base                    | 0x00010000     | 0x00018FFF      |
 |   Local Fat Directory                      | 0x00080000     | 0x0009FFFF      |
-|   Freelist                                 | 0x000A0000     | 0x000FFFFF      |
+|   Filesystem Temporary                     | 0x000A0000     | 0x000FFFFF      |
 |   Free                                     | 0x00100000     |                 |
 |   - I/O Temporary                          | 0x00110000     | 0x001FFFFF      |
 |   -- VGA Temporary                         | 0x00110000     | 0x0011FFFF      |
