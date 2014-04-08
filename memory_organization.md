@@ -19,11 +19,11 @@
 
 | Component                                  | Start Address  | End Address     |
 | ------------------------------------------ | :------------: | :-------------: |
-|   Master Boot Record (+ Bootloader)        | 0x00000000     | 0x000001ff      |
-|   Kernel                                   | 0x00000200     | 0x0000ffff      |
-|   Root Directory                           | 0x00010000     | 0x000101ff      |
-|   Free List                                | 0x00010200     | 0x000103ff      |
-|   Blocks                                   | 0x00010200     | 0x007fffff      |
+|   Master Boot Record (+ Bootloader)        | 0x00000000     | 0x000001FF      |
+|   Kernel                                   | 0x00000200     | 0x0000FFFF      |
+|   Root Directory                           | 0x00010000     | 0x000101FF      |
+|   Free List                                | 0x00010200     | 0x000103FF      |
+|   Blocks                                   | 0x00010200     | 0x007FFFFF      |
 
 ## Memory Map
 
