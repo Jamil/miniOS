@@ -73,10 +73,11 @@ checkSDReady:
   movi r19, 0b010
   stwio r19, (r18)
 
-  ldw r18, 568(r16)                   # Check Response R1 Register
-  movia r19, 0x1000000
-  and r18, r18, r19                   # Check to see if SD Card is initialized
-  bne r18, r0, checkSDReady
+## I don't think we need to check Response R1 until we issue a load or store
+# ldw r18, 568(r16)                   # Check Response R1 Register
+# movia r19, 0x01000000
+# and r18, r18, r19                   # Check to see if SD Card is initialized
+# bne r18, r0, checkSDReady
 
   movia r4, SD_CONTROL_ADDRESS        # Disk Address
   mov   r5, zero                      # Destination address (on SD Card)
@@ -94,7 +95,9 @@ checkSignature:
   movia r17, bootloader_space
   ldw   r16, 508(r17)                  # Load MBR Signature (bytes 510 and 511)
     
-  movia r18, 0x55aa
+  
+  movi r18, 0x55aa
+  srli r16,r16,16
   andi r18, r18, 0xFFFF
   cmpeq r17, r16, r18		              # Check if boot signature is AA55
   beq r17, r0, no_boot_sector
@@ -119,8 +122,6 @@ success:
   movi r17, 0b01                      # Set debug bit on LEDs
   movia r18, LED_GREEN_ADDRESS
   stwio r17, (r18)
-
-  call ps2_initialize
   
   movia r17, bootloader_space
   jmp r17

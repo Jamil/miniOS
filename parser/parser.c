@@ -1,5 +1,4 @@
 void parser(char* command);
-void newLine(char*);
 char* split_line(char* command);
 int str_cp(char* str1,char* str2);
 void pwd_function(char* arg);
@@ -8,15 +7,30 @@ void ls_function(char* arg);
 void cd_function(char* arg);
 void execute_function(char* arg);
 
+void os_main(){
+   
+   newLine_load("Operatin System runing");
+   newLine_load("Kernel shell running");
+   
+   
+   while(1){
+   
+   }
+   
+}
+	
 
-//int foobar asm("newLine") = 0x02000;
+void newLine_load(char* arg){
+  asm("call 0x1704"::);//must change to newline addres in main
+  return;
+}
 
 
 void parser(char* command){
   int a=1;
 
   if(*command=='\0'){
-    newLine(">>");
+    newLine_load(">>");
     return;
   }
   
@@ -35,7 +49,7 @@ void parser(char* command){
   if(str_cp(command,"cd")==1)
    cd_function(args);
 
-  newLine(">>");
+  newLine_load(">>");
   return;
 }
 
@@ -110,7 +124,7 @@ void pwd_function(char* arg){
   pwd_current=temp_response;
   
   
-  newLine(pwd_current);
+  newLine_load(pwd_current);
   return;
   
 }
@@ -137,9 +151,7 @@ void execute_function(char* arg){
   pwd_current=temp_response;
   
   
-  newLine(pwd_current);
-  
-
+  newLine_load(pwd_current);
   return;
   
 }
@@ -153,7 +165,7 @@ void ls_function(char* arg){
   pwd_current=temp_response;
   
   
-  newLine(pwd_current);
+  newLine_load(pwd_current);
   return;
   
 }
@@ -175,7 +187,7 @@ void cd_function(char* arg){
   pwd_current=temp_response;
   
   
-  newLine(pwd_current);
+  newLine_load(pwd_current);
   return;
   
 }

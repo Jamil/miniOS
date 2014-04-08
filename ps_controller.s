@@ -76,6 +76,8 @@ ascii_arrowkeys:
 #rigth ARROW=84
 
 
+
+
 ##the addres of the ps2controller
 
 .text
@@ -86,7 +88,7 @@ ascii_arrowkeys:
 .equ SHIFT, 0x12      ##this is the code for shift
 .equ BACKSPACE, 0x66      ##this is the code for shift
 .equ ENTER, 0x5a      ##this is the code for shift
-
+.equ PARSER_OS, 0x10000
 
 .equ ADDR_REDLEDS, 0x10000000	
 .equ ADDR_GREENLEDS, 0x10000010
