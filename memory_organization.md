@@ -23,7 +23,7 @@
 |   Kernel                                   | 0x00000200     | 0x0000FFFF      |
 |   Root Directory                           | 0x00010000     | 0x000101FF      |
 |   Free List                                | 0x00010200     | 0x000103FF      |
-|   Blocks                                   | 0x00010200     | 0x007FFFFF      |
+|   Blocks                                   | 0x00010400     | 0x007FFFFF      |
 
 ## Memory Map
 
