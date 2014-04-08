@@ -1,4 +1,4 @@
-# In SDRAM
+## SDRAM
 
 | Component                                  | Start Address  | End Address     |
 | ------------------------------------------ | :------------: | :-------------: |
@@ -7,7 +7,7 @@
 |   Bootloader                               | 0x00005000     |                 |
 |   Operating System Base                    | 0x00010000     | 0x00018FFF      |
 |   Local Fat Directory                      | 0x00080000     | 0x0009FFFF      |
-|   current Directory                      | 0x000A0000     | 0x000FFFFF      |
+|   current Directory                        | 0x000A0000     | 0x000FFFFF      |
 |   Free                                     | 0x00100000     |                 |
 |   - I/O Temporary                          | 0x00110000     | 0x001FFFFF      |
 |   -- VGA Temporary                         | 0x00110000     | 0x0011FFFF      |
@@ -15,7 +15,17 @@
 |   Active Program                           | 0x00130000     | 0x001FFFFF      |
 |   Stack Pointer                            | 0x00200000     |                 |
 
-# Memory Map
+## SD Card
+
+| Component                                  | Start Address  | End Address     |
+| ------------------------------------------ | :------------: | :-------------: |
+|   Master Boot Record (+ Bootloader)        | 0x00000000     | 0x000001ff      |
+|   Kernel                                   | 0x00000200     | 0x0000ffff      |
+|   Root Directory                           | 0x00010000     | 0x000101ff      |
+|   Free List                                | 0x00010200     | 0x000103ff      |
+|   Blocks                                   | 0x00010200     | 0x007fffff      |
+
+## Memory Map
 
 | Component                                  | Start Address  |
 | ------------------------------------------ | :------------: |
@@ -47,13 +57,4 @@
 | **Altera_UP_Flash_Memory_IP_Core_Avalon**  | 0x01000000     | 
 
 
-# In SD_card
-
-| Component                                  | Start Address  | End Address     |
-| ------------------------------------------ | :------------: | :-------------: |
-|   Boot loader                              | 0x00000000     | 0x00000511      |
-|   kernel(parser.c)                         | 0x00000512     |                 |
-
-
-# Memory Map
 
