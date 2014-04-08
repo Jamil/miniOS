@@ -16,17 +16,21 @@ typedef struct freelist {
 
 typedef struct directory {
   File* files[128];
-}
+} Directory;
 
 int c_strcmp(char* a, char* b) {
   while (1) {
     if (*a != *b)
-      return (*a - *b);
+      return (int)(*a - *b);
     else if (*a == '\0')
       return 0;
     a++;
     b++;
   }
+}
+
+int main() {
+  return 0;
 }
 
 void c_strcpy(char* dest, const char* original) {
@@ -46,7 +50,7 @@ void filesystem_init() {
   // Initialize freelist
   freelist* fl = (freelist*)0x000A0000;
   for (int i = 0; i < 128; i++) {
-    fl->block_ptr[i] = 512 * i + 0x10400;
+    fl->block_ptr[i] = (void*)(512 * i + 0x10400);
   }
   storeSDBlock(SD_ADDR, 0x10200, &fl);
 }
@@ -56,7 +60,7 @@ void filesystem_init() {
  **/
 File* seekFile(struct directory* dir, char* filename) {
   for (int i = 0; i < 128; i++) {
-    if (!strcmp(dir->files[i].file_name, filename))
+    if (!c_strcmp(dir->files[i]->file_name, filename))
       return dir->files[i];
   }
   return (File*)0;
@@ -65,18 +69,18 @@ File* seekFile(struct directory* dir, char* filename) {
 void loadFile(File* file, void* loc) {
   int done = 0;
   for (int i = 0; i < 8; i++) {
-    if (file->inode.block_ptr[i] == 0)
+    if (file->node.block_ptr[i] == 0)
       break;
-    loadSDblock(SD_ADDR, file->inode.block_ptr[i], loc + (i * 512));
+    loadSDBlock(SD_ADDR, file->node.block_ptr[i], loc + (i * 512));
   }
 }
 
 void storeFile(File* file, void* loc) {
   int done = 0;
   for (int i = 0; i < 8; i++) {
-    if (file->inode.block_ptr[i] == 0)
+    if (file->node.block_ptr[i] == 0)
       break;
-    storeSDblock(SD_ADDR, file->inode.block_ptr[i], loc + (i * 512));
+    storeSDBlock(SD_ADDR, file->node.block_ptr[i], loc + (i * 512));
   }
 }
 
@@ -94,8 +98,8 @@ void initFile(char* name, char* ext, void* loc, int bytes) {
   freelist* fl = (freelist*)0x000A0000;
   for (int i = 0; i < 128 && inserted < blocks; i++) {
     if (fl->block_ptr[i]) {
-      file->inode.block_ptr[inserted] = fl->block_ptr[i];
-      storeSDblock(SD_ADDR, fl->block_ptr[i], loc + inserted * 512);
+      file->node.block_ptr[inserted] = fl->block_ptr[i];
+      storeSDBlock(SD_ADDR, fl->block_ptr[i], loc + inserted * 512);
       fl->block_ptr[i] = (void*)0;
       inserted++;
     }
