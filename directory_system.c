@@ -1,3 +1,10 @@
+
+#define SD_ADD		0x00800000
+#define DIR_LOCATION 	0x000B0000
+#define FREE_LIST 	0x000A0000
+#define file_location 	0x000C0000	
+#define BLOCK_START   	0x00010A00
+
 typedef struct file {
   char file_name[8];          // 0x00   Filename (if byte 1 is 2e => is directory)
   char file_extension[3];     // 0x08   File extension
@@ -8,11 +15,6 @@ typedef struct file {
   uint16_t starting_cluster;  // 0x1a   Starting Cluster Number for file
   uint32_t file_size;         // 0x1c   Filesize (in bytes)
 } File;
-
-#define SD_ADDR 0x00800000
-#define DIR_LOCATION 0x000B0000
-#define FREE_LIST 0x000A0000
-#define file_location 0x000C0000	
 
 
 typedef struct inode {
@@ -69,9 +71,9 @@ void filesystem_init() {
   freelist* fl = (freelist*)FREE_LIST;
   int i = 0;
   for (i = 0; i < 128; i++) {
-    fl->block_ptr[i] = (void*)(512 * i + 0x10400);
+    fl->block_ptr[i] = (void*)(512 * i + BLOCK_START);
   }
-  storeSDBlock(SD_ADDR, 0x10200, FREE_LIST);
+  storeSDBlock(SD_ADDR, 0x10800, FREE_LIST);
   
   // Initialize dir
   
@@ -90,6 +92,9 @@ void filesystem_init() {
   dir->signature=0xbb33;
   
   storeSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION);
+  storeSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION+0x200);
+  storeSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION+0x400);
+  storeSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION+0x600);
 
    
 }
@@ -170,6 +175,9 @@ void initFile(char* name, char* ext,  int bytes, void* loc) {
 	
 	
   storeSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION);
+  storeSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION+0x200);
+  storeSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION+0x400);
+  storeSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION+0x600);
 
 
   
@@ -187,5 +195,5 @@ void initFile(char* name, char* ext,  int bytes, void* loc) {
       inserted++;
     }
   }
-  storeSDBlock(SD_ADDR, 0x10200, FREE_LIST);
+  storeSDBlock(SD_ADDR, 0x10800, FREE_LIST);
 }
