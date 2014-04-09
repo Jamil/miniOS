@@ -8,7 +8,7 @@ void ls_function(char* arg);
 void cd_function(char* arg);
 void execute_function(char* arg);
 
-
+int pwd;
 //int foobar asm("newLine") = 0x02000;
 
 
@@ -34,6 +34,15 @@ void parser(char* command){
 	
   if(str_cp(command,"cd")==1)
    cd_function(args);
+   
+  if(str_cp(command,"mkdir")==1)
+   mkdir_function(args);
+   
+  if(str_cp(command,"load")==1)
+   load_function(args);
+   
+  if(str_cp(command,"mkfile")==1)
+   mkfile_function(args);
 
   newLine(">>");
   return;
@@ -179,4 +188,26 @@ void cd_function(char* arg){
   return;
   
 }
+
+void mkdir_function(char* arg){
+
+  char* pwd_current;
+ 
+  char* flags=split_line(arg);
+ 
+  char *temp_response[100];
+
+  *temp_response='\0';
+  
+  concatinate(temp_response,"goin to: ");
+  concatinate(temp_response,arg);
+  
+  pwd_current=temp_response;
+  
+  
+  newLine(pwd_current);
+  return;
+  
+}
+
 
