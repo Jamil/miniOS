@@ -7,6 +7,13 @@ void concatinate(char* str1,char* str2);
 void ls_function(char* arg);
 void cd_function(char* arg);
 void execute_function(char* arg);
+void store_function(char* arg);
+void mkdir_function(char* arg);
+void mkfile_function(char* arg);
+void format_function(char* arg);
+void call_program(int i);
+
+
 
 int pwd;
 //int foobar asm("newLine") = 0x02000;
@@ -128,34 +135,6 @@ void pwd_function(char* arg){
 }
 
 
-void execute_function(char* arg){
-
-
-  char* flags=split_line(arg);
-
-  
-
-  char* pwd_current;
-  
-  char *temp_response[100];
-
-  *temp_response='\0';
-  
-  concatinate(temp_response,"executing program ");
-  concatinate(temp_response,arg);
-  
-  
-  
-  pwd_current=temp_response;
-  
-  
-  newLine(pwd_current);
-  
-
-  return;
-  
-}
-
 void ls_function(char* arg){
 
   char* pwd_current;
@@ -195,7 +174,7 @@ void cd_function(char* arg){
 void mkdir_function(char* arg){
 
   char* name=arg;
- 
+   char* pwd_current;
   char* flags=split_line(name);
  
   initFile(name,"dir",0, 0,pwd);
@@ -217,6 +196,7 @@ void mkdir_function(char* arg){
 void mkfile_function(char* arg){
 
   char* name=arg;
+  char* pwd_current;
  
   char* exe=split_line(name);
   
@@ -246,17 +226,17 @@ void mkfile_function(char* arg){
   return;
 }
 
-void store_function(char* arg){
+void parent_dir(char* arg){
 
   char* name=arg;
- 
+  char* pwd_current;
   char* loc_str=split_line(name);
 
   split_line(loc_str);
   
   int loc=atoh(loc_str);
   
-  storeFile_name(pwd,name, loc)
+  storeFile_name(pwd,name, loc);
  
   char *temp_response[100];
 
@@ -276,7 +256,7 @@ void store_function(char* arg){
 void execute_function(char* arg){
 
   char* name=arg;
- 
+  char* pwd_current;
   char* loc_str=split_line(name);
 
   storeFile_name(pwd,name, 0x00130000);
@@ -298,7 +278,7 @@ void execute_function(char* arg){
   return;
 }
 
-void call_program(int i)[
+void call_program(int i){
   
   asm("callr r2");
 
@@ -309,7 +289,7 @@ void call_program(int i)[
 
 void format_function(char* arg){
 
-  
+   char* pwd_current;
   filesystem_init();
  
   char *temp_response[100];
@@ -341,7 +321,7 @@ int atoh(char *str){
 	else if(*str>='A'&&*str<='Z')
 		hex_c=*str-0x61;
 	else
-	 	hex_c=0
+	 	hex_c=0;
     hex=hex*16+hex_c;
     }
 
