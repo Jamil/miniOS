@@ -8,7 +8,6 @@ void ls_function(char* arg);
 void cd_function(char* arg);
 void execute_function(char* arg);
 
-int pwd;
 //int foobar asm("newLine") = 0x02000;
 
 
@@ -29,7 +28,7 @@ void parser(char* command){
   if(str_cp(command,"execute")==1)
     execute_function(args);
 	
- if(str_cp(command,"ls")==1)
+  if(str_cp(command,"ls")==1)
     ls_function(args);
 	
   if(str_cp(command,"cd")==1)
@@ -114,19 +113,9 @@ void concatinate(char* str1,char* str2){
 }
 
 void pwd_function(char* arg){
-
-  char* pwd_current;
- 
- 
-  char *temp_response="you are home";
-  pwd_current=temp_response;
-  
-  
-  newLine(pwd_current);
+  pwd();
   return;
-  
 }
-
 
 void execute_function(char* arg){
 
@@ -157,39 +146,19 @@ void execute_function(char* arg){
 }
 
 void ls_function(char* arg){
-
-  char* pwd_current;
- 
- 
-  char *temp_response="There is nothing here";
-  pwd_current=temp_response;
-  
-  
-  newLine(pwd_current);
+  ls();
   return;
-  
 }
 
 
 void cd_function(char* arg){
+  if (!arg) {
+    newLine("No directory specified.");
+    return;
+  }
 
-  char* pwd_current;
- 
-  char* flags=split_line(arg);
- 
-  char *temp_response[100];
-
-  *temp_response='\0';
-  
-  concatinate(temp_response,"goin to: ");
-  concatinate(temp_response,arg);
-  
-  pwd_current=temp_response;
-  
-  
-  newLine(pwd_current);
+  cd(arg);
   return;
-  
 }
 
 void mkdir_function(char* arg){
