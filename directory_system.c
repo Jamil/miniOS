@@ -33,7 +33,7 @@ typedef struct freelist {
 
 typedef struct directory  {
   int signature;         //0x0000BB33
-  void* sub_dir;
+  void* parent_dir;
   char file_name[12];         
   char file_extension[4];    
   File* files[8]; 
