@@ -43,6 +43,9 @@ void parser(char* command){
    
   if(str_cp(command,"mkfile")==1)
    mkfile_function(args);
+  
+  if(str_cp(command,"format")==1)
+   format_function(args);
 
   newLine(">>");
   return;
@@ -191,15 +194,17 @@ void cd_function(char* arg){
 
 void mkdir_function(char* arg){
 
-  char* pwd_current;
+  char* name=arg;
  
-  char* flags=split_line(arg);
+  char* flags=split_line(name);
+ 
+  initFile(name,"dir",0, 0,pwd);
  
   char *temp_response[100];
 
   *temp_response='\0';
   
-  concatinate(temp_response,"goin to: ");
+  concatinate(temp_response,"creating directory: ");
   concatinate(temp_response,arg);
   
   pwd_current=temp_response;
@@ -207,7 +212,139 @@ void mkdir_function(char* arg){
   
   newLine(pwd_current);
   return;
-  
 }
 
+void mkfile_function(char* arg){
+
+  char* name=arg;
+ 
+  char* exe=split_line(name);
+  
+  char* size_str=split_line(exe);
+  
+  char* loc_str=split_line(size_str);
+  
+  split_line(loc_str);
+  
+  int size=atoh(size_str);
+  int loc=atoh(loc_str);
+  
+  initFile(name,exe,size,loc,pwd);
+ 
+  char *temp_response[100];
+
+  *temp_response='\0';
+  
+  concatinate(temp_response,"creating File:");
+  concatinate(temp_response,name);
+  concatinate(temp_response," , at location : ");
+  concatinate(temp_response,loc_str);
+  
+  pwd_current=temp_response;
+  
+  newLine(pwd_current);
+  return;
+}
+
+void store_function(char* arg){
+
+  char* name=arg;
+ 
+  char* loc_str=split_line(name);
+
+  split_line(loc_str);
+  
+  int loc=atoh(loc_str);
+  
+  storeFile_name(pwd,name, loc)
+ 
+  char *temp_response[100];
+
+  *temp_response='\0';
+  
+  concatinate(temp_response,"storing file :");
+  concatinate(temp_response,name);
+  concatinate(temp_response,"m at location :");
+  concatinate(temp_response,loc_str);
+  
+  pwd_current=temp_response;
+  
+  newLine(pwd_current);
+  return;
+}
+
+void execute_function(char* arg){
+
+  char* name=arg;
+ 
+  char* loc_str=split_line(name);
+
+  storeFile_name(pwd,name, 0x00130000);
+ 
+  char *temp_response[100];
+
+  *temp_response='\0';
+  
+  concatinate(temp_response,"executing program:");
+  concatinate(temp_response,name);
+
+  
+  pwd_current=temp_response;
+  
+  newLine(pwd_current);
+  
+  call_program(0x00130000);
+  
+  return;
+}
+
+void call_program(int i)[
+  
+  asm("callr r2");
+
+  return;
+};
+
+
+
+void format_function(char* arg){
+
+  
+  filesystem_init();
+ 
+  char *temp_response[100];
+
+  *temp_response='\0';
+  
+  concatinate(temp_response,"formated sd card");
+  
+  pwd_current=temp_response;
+  
+  newLine(pwd_current);
+  
+  call_program(0x00130000);
+  
+  return;
+}
+
+
+int atoh(char *str){
+  
+  
+  int hex=0;
+  int hex_c=0;
+  while(*str!='\0'){
+    if(*str>='0'&&*str<='9')
+	    hex_c=*str-0x30;
+	else if(*str>='a'&&*str<='z')
+		hex_c=*str-0x41;
+	else if(*str>='A'&&*str<='Z')
+		hex_c=*str-0x61;
+	else
+	 	hex_c=0
+    hex=hex*16+hex_c;
+    }
+
+	return hex;
+}
 
