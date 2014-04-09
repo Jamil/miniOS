@@ -6,12 +6,14 @@ void concatinate(char* str1,char* str2);
 void ls_function(char* arg);
 void cd_function(char* arg);
 void execute_function(char* arg);
+char* get_str( int i);
+
 
 void os_main(){
    
-   newLine_load("Operatin System runing");
-   newLine_load("Kernel shell running");
    
+   newLine_load(get_str(0));
+   newLine_load(get_str(1));
    
    while(1){
    
@@ -20,9 +22,29 @@ void os_main(){
 }
 	
 
-void newLine_load(char* arg){
+void newLine_load(char* s){
+  asm("addi sp,sp,-4"::);
+  asm("stw ra,0(sp)"::);
+  
   asm("call 0x1704"::);//must change to newline addres in main
+  
+  asm("ldw ra,0(sp)"::);
+  asm("addi sp,sp,4"::);
+  
   return;
+}
+
+char* get_str( int i){
+
+  
+  asm("addi r8,r0,0x110"::);
+  asm("slli r8,r8,8"::);
+  
+  asm("muli r4,r4,4"::);
+  asm("add r4,r4,r8"::);
+  asm("ldw r2,(r4)"::);
+ 
+  asm("ret"::);
 }
 
 
@@ -30,26 +52,26 @@ void parser(char* command){
   int a=1;
 
   if(*command=='\0'){
-    newLine_load(">>");
+    newLine_load(get_str(2));
     return;
   }
   
   char* args;
   args=split_line(command);
   
-  if(str_cp(command,"pwd")==1)
+  if(str_cp(command,get_str(3))==1)
     pwd_function(args);
 	
-  if(str_cp(command,"execute")==1)
+  if(str_cp(command,get_str(4))==1)
     execute_function(args);
 	
- if(str_cp(command,"ls")==1)
+ if(str_cp(command,get_str(5))==1)
     ls_function(args);
 	
-  if(str_cp(command,"cd")==1)
+  if(str_cp(command,get_str(6))==1)
    cd_function(args);
 
-  newLine_load(">>");
+  newLine_load(get_str(2));
   return;
 }
 
@@ -120,7 +142,7 @@ void pwd_function(char* arg){
   char* pwd_current;
  
  
-  char *temp_response="you are home";
+  char *temp_response=get_str(7);
   pwd_current=temp_response;
   
   
@@ -143,7 +165,7 @@ void execute_function(char* arg){
 
   *temp_response='\0';
   
-  concatinate(temp_response,"executing program ");
+  concatinate(temp_response,get_str(8));
   concatinate(temp_response,arg);
   
   
@@ -161,7 +183,7 @@ void ls_function(char* arg){
   char* pwd_current;
  
  
-  char *temp_response="There is nothing here";
+  char *temp_response=get_str(9);
   pwd_current=temp_response;
   
   
@@ -181,7 +203,7 @@ void cd_function(char* arg){
 
   *temp_response='\0';
   
-  concatinate(temp_response,"goin to: ");
+  concatinate(temp_response,get_str(10));
   concatinate(temp_response,arg);
   
   pwd_current=temp_response;

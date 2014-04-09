@@ -36,8 +36,7 @@ call_ps2:
     	
 	
     ##call the keyboard control function
-	movia r17, parser_address
-    callr r17
+	call ps2controller
 	
     movia r4,buffer_read
     ldw   r4,(r4)
@@ -88,7 +87,7 @@ str_test:
 .equ buffer_f0_press, 0x00120030   ##pointer address that must start to read
 .equ buffer_start, 0x00120100  ##actual start adrees of the buffer
 .equ buffer_show_size, 60
-.equ parser_address, 0x101e8
+.equ parser_address, 0x101d0
 
 .global ps2_initialize
 
