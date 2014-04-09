@@ -1,4 +1,3 @@
-
 #define SD_ADD		0x00800000
 #define DIR_LOCATION 	0x000B0000
 #define FREE_LIST 	0x000A0000
