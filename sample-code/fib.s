@@ -17,6 +17,8 @@ fib_loop:
   movi r20, str
   addi r21, r18, 30     # ascii value of number
   stb r21, (r20)        # store in first char of str
+  
+  mov r4, r20
   call newLine
 
   addi r16, r16, 1
