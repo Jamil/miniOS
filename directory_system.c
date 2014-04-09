@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 typedef struct file {
   char file_name[8];          // 0x00   Filename (if byte 1 is 2e => is directory)
   char file_extension[3];     // 0x08   File extension
@@ -9,7 +8,7 @@ typedef struct file {
   uint16_t starting_cluster;  // 0x1a   Starting Cluster Number for file
   uint32_t file_size;         // 0x1c   Filesize (in bytes)
 } File;
-=======
+
 #define SD_ADDR 0x00800000
 #define DIR_LOCATION 0x000B0000
 #define FREE_LIST 0x000A0000
@@ -190,4 +189,3 @@ void initFile(char* name, char* ext,  int bytes, void* loc) {
   }
   storeSDBlock(SD_ADDR, 0x10200, FREE_LIST);
 }
->>>>>>> 2eeaea16241716c01391f7a16c0c562f519564eb
