@@ -12,7 +12,8 @@
 |   - I/O Temporary                          | 0x00110000     | 0x001FFFFF      |
 |   -- VGA Temporary                         | 0x00110000     | 0x0011FFFF      |
 |   -- Keyboard Temporary                    | 0x00120000     | 0x0012FFFF      |
-|   Active Program                           | 0x00130000     | 0x001FFFFF      |
+|   Active Program                           | 0x00130000     | 0x001FFFEF      |
+|   Present Working Directory                | 0x001FFFF0     | 0x001FFFFF      |
 |   Stack Pointer                            | 0x00200000     |                 |
 
 ## SD Card
