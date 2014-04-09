@@ -98,6 +98,19 @@ void filesystem_init() {
    
 }
 
+void load_metadata() {
+  // Initialize freelist
+
+  loadSDBlock(SD_ADDR, 0x10800, FREE_LIST);
+  
+  loadSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION);
+  loadSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION+0x200);
+  loadSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION+0x400);
+  loadSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION+0x600);
+
+   
+}
+
 /** file_seek
   * Pass this the address of a directory *loaded locally in memory*, and the name of a file. Will return a pointer to the file structure
  **/
@@ -107,7 +120,7 @@ File* seekFile(struct directory* dir, char* filename) {
     if (!c_strcmp(dir->files[i]->file_name, filename))
       return dir->files[i];
   }
-  return (File*)0;
+  return (File*)DIR_LOCATION;
 }
 
 void loadFile_name(struct directory* dir, char* filename,void* loc) {
@@ -141,10 +154,9 @@ void storeFile_name(struct directory* dir, char* filename, void* loc) {
 
 
 
-void initFile(char* name, char* ext,  int bytes, void* loc) {
-  int blocks = bytes/512 + 1;
+void initFile(char* name, char* ext,  int bytes, void* loc, struct directory* dir) {
   
-  struct directory* dir = (struct directory*)DIR_LOCATION;
+  int blocks = bytes/512 + 1;
   
   int k;
   for(k=0;dir->files[k]!=0;k++){
