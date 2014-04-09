@@ -1,19 +1,10 @@
-#define SD_ADD		0x00800000
+#define SD_ADDR		0x00800000
 #define DIR_LOCATION 	0x000B0000
 #define FREE_LIST 	0x000A0000
 #define file_location 	0x000C0000	
 #define BLOCK_START   	0x00010A00
 
-typedef struct file {
-  char file_name[8];          // 0x00   Filename (if byte 1 is 2e => is directory)
-  char file_extension[3];     // 0x08   File extension
-  uint8_t file_attributes;    // 0x0b	  Attributes 
-  char reserved_space[10]     // 0x0c	  Reserved
-  uint16_t update_time;       // 0x16   Time created or last updated
-  uint16_t update_date;       // 0x18   Date created or last updated
-  uint16_t starting_cluster;  // 0x1a   Starting Cluster Number for file
-  uint32_t file_size;         // 0x1c   Filesize (in bytes)
-} File;
+	
 
 
 typedef struct inode {
@@ -22,7 +13,7 @@ typedef struct inode {
 
 typedef struct file {
   int signature;         //if 0x0000BB33
-  void* sub_dir;
+  void* parent_dir;
   char file_name[20];         
   char file_extension[4];    
   inode node;
@@ -87,7 +78,7 @@ void filesystem_init() {
     dir->files[i]=0;
 	
   c_strcpy(dir->file_name, "dir");
-  dir->sub_dir=dir;
+  dir->parent_dir=dir;
   dir->signature=0xbb33;
   
   storeSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION);
@@ -181,7 +172,7 @@ void initFile(char* name, char* ext,  int bytes, void* loc, struct directory* di
   if(c_strcmp(file->file_extension,"dir")==0)
       blocks=0;
 	
-  file->sub_dir=DIR_LOCATION;
+  file->parent_dir=DIR_LOCATION;
   file->signature=0xbb33;
 	
 	
