@@ -82,12 +82,10 @@ prepare_for_store:                  # Set control bits to store to SD Card
   movi r9, 0x18                     # Tell command register to write bytes to SD Card
   sthio r9, 560(r4)
 
-## We don't need this  
-# poll_SD_until_stored:
-# ldwio r9, 560(r4)
-# andi r9, r9, 0b10
-# bne r9, r0, poll_SD_until_stored
-# br finish_store
+store_poll_SD:
+  ldwio r9, 564(r4)       # Read Auxiliary Status Register
+  andi r9, r9, 0b0100	       # Check if bit 3 (status = valid) is on
+  beq r9, r0, store_poll_SD 
 
 storeSRAMBlock:
   mov r8, r4          
@@ -97,9 +95,6 @@ storeSRAMBlock:
     
 store_bytes:
   bge r9, r10, finish_store
-  add r11, r6, r9             # target address
-  ldb r12, (r11)              # load from main memory
-  add r11, r8, r9             # destination address
   stbio r12, (r11)            # store to disk
     
 finish_store:

@@ -100,7 +100,7 @@ ascii_arrowkeys:
 .equ buffer_f0_press, 0x00120030   ##pointer address that must start to read
 .equ buffer_start, 0x00120100  ##actual start adrees of the buffer
 .equ buffer_show_size, 60
-.equ parser_address, 0x10004
+.equ parser_address,0x10004
 
 .global ps2controller
 
@@ -285,7 +285,9 @@ enter_pressed:
   movia r4,buffer_read
   ldw   r4,(r4)
   movia r16,parser_address 
-  callr r16 
+##callr r16 
+  call parser
+  
   
   movia r16,shift_press      ##initialise shift to  unpress
   stw r0,(r16)

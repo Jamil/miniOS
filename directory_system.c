@@ -1,11 +1,9 @@
-#define SD_ADD		      0x00800000
+#define SD_ADDR		      0x00800000
 #define DIR_LOCATION 	 0x000B0000
 #define FREE_LIST 	    0x000A0000
 #define file_location 	0x000C0000
 #define BLOCK_START   	0x00010A00
 #define PWD             0x001FFFF0
-
-
 
 
 typedef struct inode {
@@ -27,10 +25,13 @@ typedef struct freelist {
 typedef struct directory  {
   int signature;         //0x0000BB33
   void* parent_dir;
-  char file_name[12];
+  char file_name[20];
   char file_extension[4];
   File* files[8];
-}  Directory;
+} Directory;
+
+
+
 
 int c_strcmp(char* a, char* b) {
   while (1) {
@@ -78,25 +79,30 @@ void filesystem_init() {
  for( i=0;i<8;i++)
     dir->files[i]=0;
 
-  c_strcpy(dir->file_name, "dir");
+  c_strcpy(dir->file_name, "root");
+  c_strcpy(dir->file_extension, "dir");
+  
   dir->parent_dir=dir;
   dir->signature=0xbb33;
 
   storeSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION);
-  storeSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION+0x200);
-  storeSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION+0x400);
-  storeSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION+0x600);
+  storeSDBlock(SD_ADDR, 0x00010200, DIR_LOCATION+0x200);
+  storeSDBlock(SD_ADDR, 0x00010400, DIR_LOCATION+0x400);
+  storeSDBlock(SD_ADDR, 0x00010600, DIR_LOCATION+0x600);
+  
+  int* loc = PWD;
+ (*loc)=(int)DIR_LOCATION;
 }
 
 void load_metadata() {
   // Initialize freelist
 
-  loadSDBlock(SD_ADDR, 0x10800, FREE_LIST);
+  loadSDBlock(SD_ADDR, 0x00010800, FREE_LIST);
 
   loadSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION);
-  loadSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION+0x200);
-  loadSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION+0x400);
-  loadSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION+0x600);
+  loadSDBlock(SD_ADDR, 0x00010200, DIR_LOCATION+0x200);
+  loadSDBlock(SD_ADDR, 0x00010400, DIR_LOCATION+0x400);
+  loadSDBlock(SD_ADDR, 0x00010600, DIR_LOCATION+0x600);
 
 
 }
@@ -140,7 +146,8 @@ void storeFile(File* file,void* loc){
 void storeFile_name(struct directory* dir, char* filename, void* loc) {
 
 	storeFile(seekFile(dir, filename),loc);
-}
+
+  }
 
 
 
@@ -149,8 +156,8 @@ void initFile(char* name, char* ext,  int bytes, void* loc, struct directory* di
   int blocks = bytes/512 + 1;
 
   int k;
-  for(k=0;dir->files[k]!=0;k++){
-
+  
+  for(k=0;dir->files[k] !=0;k++){
   }
 
   void* all_dir = (struct all_dir*)DIR_LOCATION;
@@ -163,10 +170,11 @@ void initFile(char* name, char* ext,  int bytes, void* loc, struct directory* di
   File* file = (File*)(struct file*)(all_dir+j*64);
   c_strcpy(file->file_name, name);
 
-  int i;
-  for ( i = 0; i < 3; i++)
-    file->file_extension[i] = ext[i];
 
+  c_strcpy(file->file_extension, ext);
+
+   int i;
+  
   file->file_extension[3]='\0';
   if(c_strcmp(file->file_extension,"dir")==0)
       blocks=0;
@@ -176,9 +184,9 @@ void initFile(char* name, char* ext,  int bytes, void* loc, struct directory* di
 
 
   storeSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION);
-  storeSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION+0x200);
-  storeSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION+0x400);
-  storeSDBlock(SD_ADDR, 0x00010000, DIR_LOCATION+0x600);
+  storeSDBlock(SD_ADDR, 0x00010200, DIR_LOCATION+0x200);
+  storeSDBlock(SD_ADDR, 0x00010400, DIR_LOCATION+0x400);
+  storeSDBlock(SD_ADDR, 0x00010600, DIR_LOCATION+0x600);
 
 
 
@@ -199,43 +207,51 @@ void initFile(char* name, char* ext,  int bytes, void* loc, struct directory* di
   storeSDBlock(SD_ADDR, 0x10800, FREE_LIST);
 }
 
-void pwd() {
-  // Load present working directory from memory
-  Directory* dir = (Directory*)PWD;
-  newLine(dir->file_name);
+void pwd(struct directory* dir) {
+  char* filename = dir->file_name;
+  newLine(filename);
 }
 
-void cd(char* dir) {
-  Directory* dir = (Directory*)PWD;
+void cd(char* dirName, Directory* dir) {
+
+  int compare = c_strcmp(dirName, "..");
+  if (!compare) {
+    char *mem = 0;
+    Directory* parent = dir->parent_dir;
+    mem[PWD] = (Directory*)parent;
+  }
 
   // Iterate through files
-  for (int i = 0; i < 8; i++) {
+  int i;
+  for (i = 0; i < 8; i++) {
     File* currentFile = dir->files[i];
 
     // Check signature
     if (currentFile->signature == 0x0000BB33) {
       // File exists; now check if match
-      int result = c_strcmp(dir, currentFile->file_name);
+      int result = c_strcmp(dirName, currentFile->file_name);
       if (!result) {
         // check if dir
-        int isFile = c_strcmp("dir", file_extension);
+        int isFile = c_strcmp("dir", currentFile->file_extension);
         if (isFile)
           newLine("Error: is not a directory");
         else {
-          *dir = currentFile;
+          char *mem = 0;
+          mem[PWD] = (Directory*)currentFile;
         }
       }
     }
   }
 }
 
-void ls() {
-  for (int i = 0; i < 8; i++) {
+void ls(Directory* dir) {
+  int i;
+  for (i = 0; i < 8; i++) {
     File* currentFile = dir->files[i];
 
     if (currentFile->signature == 0x0000BB33) {
       // file exists
-      newLine(file_name);
+      newLine(currentFile->file_name);
     }
   }
 }

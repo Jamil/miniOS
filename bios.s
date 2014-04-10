@@ -4,8 +4,6 @@
 .equ LED_GREEN_ADDRESS, 0x10000010
 .equ SD_CONTROL_ADDRESS, 0x00800000
 .equ bootloader_space, 0x5000
-.equ OS_space, 0x10000
-
 
 str_boot:         .asciz ">> Starting boot process."
 str_sd:           .asciz ">> Looking for SD Card..."
@@ -14,8 +12,6 @@ str_sdfound:      .asciz ">> Found SD Card."
 str_bootsearch:   .asciz ">> Checking Master Boot Record (MBR) for signature 0xaa55."
 str_bootfail:     .asciz ">> No boot record found on disk. Aborting."
 str_loadsucc:     .asciz ">> MBR Found. Exiting BIOS and passing control to bootloader."
-
-
 
 bootloader_space_:   
   .skip 512   
@@ -41,15 +37,11 @@ initialize_bios:
   
   call VGA_INIT
   
-  movi r4, str_boot
+  movia r4, str_boot
   call newLine
 
-  movi r4, str_sd
+  movia r4, str_sd
   call newLine
-  
-  movia r8, OS_space
-###jmp r8                 ###debuging mode
-   br checkSDExists
   
 checkSDExists:                        # Check to see whether bootloader should be from SRAM or SD
   movia r18, 500000                   # .5 M clock cycles
@@ -114,7 +106,7 @@ checkSignature:
   bne r17, r0, success
     
 no_boot_sector:
-  movi r4, str_bootfail
+  movia r4, str_bootfail
   call newLine
   
   movi r17, 0b0100                    # Set debug bit on LEDs
@@ -134,4 +126,9 @@ success:
   
   call newLine
   movia r17, bootloader_space
+  
+  movi r4, 0
+  call update_function
+  
+succ_loop:
   jmp r17

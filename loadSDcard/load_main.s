@@ -3,11 +3,11 @@
 .equ SRAM_ADDRESS, 0x08050000
 .equ LED_GREEN_ADDRESS, 0x10000010
 .equ SD_CONTROL_ADDRESS, 0x00800000
-.equ OS_ADDRESS_MAIN, 0x10000
-.equ OS_ADDRESS_SD_CARD, 512 ##0x0
-.equ NUMBER_OF_CLUSTER, 10   ##must change from boot loader to the os
+.equ OS_ADDRESS_MAIN, 0x30000
+.equ OS_ADDRESS_SD_CARD, 0x10a00 ##0x0
+.equ NUMBER_OF_CLUSTER, 1   ##must change from boot loader to the os
 
-str_boot:         .asciz ">> Starting boot process."
+sstr_boot:         .asciz ">> Starting boot process."
 str_sd:           .asciz ">> Looking for SD Card..."
 str_notfound:     .asciz ">> Could not find SD Card. I'll try the SRAM now."
 str_sdfound:      .asciz ">> Found SD Card."
@@ -54,7 +54,7 @@ load_SDcard:
   
 loop:  
 
-  call storeSDBlock
+  call loadSDBlock
   addi r5,r5,512
   addi r6,r6,512
   addi r16,r16,1

@@ -12,6 +12,57 @@ void mkdir_function(char* arg);
 void mkfile_function(char* arg);
 void format_function(char* arg);
 void call_program(int i);
+int c_strcmp(char* a, char* b);
+
+
+
+typedef struct inode {
+  void* block_ptr[8];         // Max file size = 8 * 512 = 4kb
+} inode;
+
+typedef struct file {
+  int signature;         //if 0x0000BB33
+  void* parent_dir;
+  char file_name[20];
+  char file_extension[4];
+  inode node;
+} File;
+
+typedef struct freelist {
+  void* block_ptr[128];
+} freelist;
+
+typedef struct directory  {
+  int signature;         //0x0000BB33
+  void* parent_dir;
+  char file_name[12];
+  char file_extension[4];
+  File* files[8];
+} Directory;
+
+
+void c_strcpy(char* dest, const char* original);
+void filesystem_init();
+
+void load_metadata();
+File* seekFile(struct directory* dir, char* filename);
+
+void loadFile_name(struct directory* dir, char* filename,void* loc) ;
+
+void loadFile(File* file, void* loc);
+void storeFile(File* file,void* loc);
+
+void storeFile_name(struct directory* dir, char* filename, void* loc);
+
+void initFile(char* name, char* ext,  int bytes, void* loc, struct directory* dir);
+void pwd(struct directory* dir);
+void cd(char* dirName, Directory* dir);
+void ls(Directory* dir) ;
+
+
+
+#define PWD             0x001FFFF0
+
 
 
 
@@ -29,30 +80,41 @@ void parser(char* command){
   char* args;
   args=split_line(command);
   
-  if(str_cp(command,"pwd")==1)
+  if(c_strcmp(command,"pwd")==0)
     pwd_function(args);
-	
-  if(str_cp(command,"execute")==1)
+  else if(c_strcmp(command,"execute")==0)
     execute_function(args);
 	
-  if(str_cp(command,"ls")==1)
+  else if(c_strcmp(command,"ls")==0)
     ls_function(args);
 	
-  if(str_cp(command,"cd")==1)
+  else if(c_strcmp(command,"cd")==0)
    cd_function(args);
    
-  if(str_cp(command,"mkdir")==1)
+  else if(c_strcmp(command,"mkdir")==0)
    mkdir_function(args);
    
-  if(str_cp(command,"load")==1)
-   load_function(args);
+  else if(c_strcmp(command,"load")==0)
+   store_function(args);
    
-  if(str_cp(command,"mkfile")==1)
+   else if (c_strcmp(command,"store")==0)
+    load_function();
+   
+  else if(c_strcmp(command,"mkfile")==0)
    mkfile_function(args);
   
-  if(str_cp(command,"format")==1)
+  else if(c_strcmp(command,"format")==0)
    format_function(args);
-
+   
+  else if(c_strcmp(command,"update")==0)
+   update_function(args);
+  
+  else if (c_strcmp(command,"ex")==0)
+    ex_function();
+   
+  else
+   no_fun(args);
+   
   newLine(">>");
   return;
 }
@@ -81,22 +143,6 @@ char* split_line(char* command){
 }
 
 
-
-
-
-int str_cp(char* str1,char* str2){
-  int count=0;
-  
-  while(str1[count]==str2[count]&&str1[count]!='\0'&&str2[count]!='\0'){
-      count++;
-  
-  }
-  if(str1[count]!=str2[count])
-   return 0;
-  return 1;
-
-}
-
 void concatinate(char* str1,char* str2){
 
   //declaration
@@ -120,43 +166,15 @@ void concatinate(char* str1,char* str2){
 }
 
 void pwd_function(char* arg){
-  pwd();
+  Directory** dirptr = *(Directory***)PWD;
+  
+  pwd(dirptr);
   return;
 }
-
-<<<<<<< HEAD
-void execute_function(char* arg){
-
-
-  char* flags=split_line(arg);
-
-  
-
-  char* pwd_current;
-  
-  char *temp_response[100];
-
-  *temp_response='\0';
-  
-  concatinate(temp_response,"executing program ");
-  concatinate(temp_response,arg);
-  
-  
-  
-  pwd_current=temp_response;
-  
-  
-  newLine(pwd_current);
-  
-
-  return;
-  
-}
-=======
->>>>>>> 02328543577951dc3146c59a63cac666f136c4e7
 
 void ls_function(char* arg){
-  ls();
+  Directory** dirptr = *(Directory***)PWD;
+  ls(dirptr);
   return;
 }
 
@@ -166,8 +184,9 @@ void cd_function(char* arg){
     newLine("No directory specified.");
     return;
   }
-
-  cd(arg);
+  
+  Directory** dirptr = *(Directory***)PWD;
+  cd(arg, dirptr);
   return;
 }
 
@@ -177,13 +196,19 @@ void mkdir_function(char* arg){
    char* pwd_current;
   char* flags=split_line(name);
  
-  initFile(name,"dir",0, 0,pwd);
+ 
+ 
+  Directory** dirptr = *(Directory***)PWD;
+
+  
+  
+  initFile(name,"dir",0, 0,dirptr);
  
   char *temp_response[100];
 
   *temp_response='\0';
-  
-  concatinate(temp_response,"creating directory: ");
+ 
+  concatinate(temp_response,">> Creating directory: ");
   concatinate(temp_response,arg);
   
   pwd_current=temp_response;
@@ -209,15 +234,18 @@ void mkfile_function(char* arg){
   int size=atoh(size_str);
   int loc=atoh(loc_str);
   
-  initFile(name,exe,size,loc,pwd);
+    Directory** dirptr = *(Directory***)PWD;
+
+  
+  initFile(name,exe,size,loc,dirptr);
  
   char *temp_response[100];
 
   *temp_response='\0';
   
-  concatinate(temp_response,"creating File:");
+  concatinate(temp_response,">> Creating file:");
   concatinate(temp_response,name);
-  concatinate(temp_response," , at location : ");
+  concatinate(temp_response," , at location: ");
   concatinate(temp_response,loc_str);
   
   pwd_current=temp_response;
@@ -226,7 +254,7 @@ void mkfile_function(char* arg){
   return;
 }
 
-void parent_dir(char* arg){
+void store_function(char* arg){
 
   char* name=arg;
   char* pwd_current;
@@ -236,13 +264,16 @@ void parent_dir(char* arg){
   
   int loc=atoh(loc_str);
   
-  storeFile_name(pwd,name, loc);
+  
+  Directory** dirptr = *(Directory***)PWD;
+
+  loadFile_name(dirptr,name, loc);
  
   char *temp_response[100];
 
   *temp_response='\0';
   
-  concatinate(temp_response,"storing file :");
+  concatinate(temp_response,">> Storing file :");
   concatinate(temp_response,name);
   concatinate(temp_response,"m at location :");
   concatinate(temp_response,loc_str);
@@ -253,19 +284,52 @@ void parent_dir(char* arg){
   return;
 }
 
+void load_function(char* arg){
+
+  char* name=arg;
+  char* pwd_current;
+  char* loc_str=split_line(name);
+
+  split_line(loc_str);
+  
+  int loc=atoh(loc_str);
+  
+  
+  Directory** dirptr = *(Directory***)PWD;
+
+  storeFile_name(dirptr,name, loc);
+ 
+  char *temp_response[100];
+
+  *temp_response='\0';
+  
+  concatinate(temp_response,">> Storing file :");
+  concatinate(temp_response,name);
+  concatinate(temp_response,"m at location :");
+  concatinate(temp_response,loc_str);
+  
+  pwd_current=temp_response;
+  
+  newLine(pwd_current);
+  return;
+}
+
+
 void execute_function(char* arg){
 
   char* name=arg;
   char* pwd_current;
   char* loc_str=split_line(name);
 
-  storeFile_name(pwd,name, 0x00130000);
+  Directory** dirptr = *(Directory***)PWD;
+
+  loadFile_name(dirptr,name, 0x00130000);
  
   char *temp_response[100];
 
   *temp_response='\0';
   
-  concatinate(temp_response,"executing program:");
+  concatinate(temp_response,">> Executing program:");
   concatinate(temp_response,name);
 
   
@@ -273,14 +337,21 @@ void execute_function(char* arg){
   
   newLine(pwd_current);
   
-  call_program(0x00130000);
+  ex_function(); 
   
   return;
 }
 
+
 void call_program(int i){
   
-  asm("callr r2");
+  asm("addi sp,sp,-4"::);
+  asm("stw ra,(sp)"::);
+    
+ //asm("callr r4"::);
+  
+  asm("stw ra,(sp)"::);
+  asm("addi sp,sp,4"::);
 
   return;
 };
@@ -296,14 +367,60 @@ void format_function(char* arg){
 
   *temp_response='\0';
   
-  concatinate(temp_response,"formated sd card");
+  concatinate(temp_response,">> Formatted SD card.");
   
   pwd_current=temp_response;
   
   newLine(pwd_current);
   
-  call_program(0x00130000);
+
   
+  return;
+}
+
+
+void update_function(char* arg){
+
+  int* loc = PWD;
+  (*loc)=(int)(0x0000B0000);
+  
+   char* pwd_current;
+  load_metadata();
+ 
+  char *temp_response[100];
+
+  *temp_response='\0';
+  
+  concatinate(temp_response,">> System updated");
+  
+  pwd_current=temp_response;
+  
+  newLine(pwd_current);
+  
+// call_program(0x00130000);
+
+  return;
+}
+
+void no_fun(char* arg){
+
+
+  
+   char* pwd_current;
+
+ 
+  char *temp_response[100];
+
+  *temp_response='\0';
+  
+  concatinate(temp_response,">> Error: Not a valid command.");
+  
+  pwd_current=temp_response;
+  
+  newLine(pwd_current);
+  
+  //	call_program(0x00130000);
+
   return;
 }
 
@@ -323,8 +440,18 @@ int atoh(char *str){
 	else
 	 	hex_c=0;
     hex=hex*16+hex_c;
+	
+    str++;
     }
 
 	return hex;
 }
 
+void ex_function() {
+  asm("movia r18, 0x00130000"::);
+  asm("subi sp, sp, 4"::);
+  asm("stw ra, (sp)"::);
+  asm("callr r18"::); 
+  asm("ldw ra, (sp)"::);
+  asm("addi sp, sp, 4"::);
+}
